@@ -24,12 +24,14 @@
 
 # Ablauf
 
-## Schlüsselgeneration
+## Block Cipher
+
+### Schlüsselgeneration
 
 -   in Hashfunktion
 -   in Schlüsselgenerator
 
-## Verschlüsselung
+### Verschlüsselung
 
 1. Eingabe:
     1. in Binärzahl konvertieren
@@ -42,7 +44,7 @@
     1. Blöcke auflösen
     2. in nettes Format konvertieren
 
-## Entschlüsselung
+### Entschlüsselung
 
 1. Eingabe:
     1. in Binärzahl konvertieren
@@ -54,3 +56,13 @@
     1. Blöcke entscramblen
     2. Blöcke auflösen
     3. in nettes Format konvertieren
+
+## Stream Cipher
+
+### Schlüsselgeneration
+
+### Verschlüsselung/Entschlüsselung
+
+1. Stream in Blöcke einteilen
+2. xor mit einzelnen Blöcken <- Schlüssel mit Blocknummer
+
