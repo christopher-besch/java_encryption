@@ -17,6 +17,11 @@ public class key_16 {
         return x;
     }
 
+    private long test(Integer seed) {
+        Integer x = new Integer(seed);
+        for 
+    }
+
     private long get_key(int seed, int key_length)
 
     {
@@ -24,7 +29,8 @@ public class key_16 {
         long x = seed;
         int current_keylength = get_binlength(key);
         while (current_keylength < key_length) {
-            x = ((x * 134518036) + 1) % (int) Math.pow(2, 16);
+            // x = (long) ((x * 134518036) + 1) % (int) Math.pow(2, 32);
+            x = (long) ((x * 134518036) + 1);
             int n = get_binlength(x);
             int right_length = (int) Math.ceil((double) n / 2);
             // Halbel�nge des Bin�rcodes
