@@ -20,7 +20,7 @@
 
 ## Hashfunktion
 
--
+-   Division
 
 # Ablauf
 
@@ -65,4 +65,3 @@
 
 1. Stream in Blöcke einteilen
 2. xor mit einzelnen Blöcken <- Schlüssel mit Blocknummer
-
