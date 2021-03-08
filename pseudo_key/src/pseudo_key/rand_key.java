@@ -5,12 +5,11 @@ public class rand_key{
 
 	public static BigInteger get_nextkey(BigInteger seed, BigInteger a, BigInteger c) 
 	{
-		//rechte Seite
 		BigInteger key = BigInteger.valueOf(0);
 		BigInteger x = seed;
 		int current_keylength=0;
 		
-		while(current_keylength<64)//Die maximale Bytelänge soll 4 (64 Bit)sein 
+		while(current_keylength<64)// max 64 bit 
 		{
 			//linearer Konguenzgenerator
 			x = x.multiply(a).add(c).mod(power_base_2(64));
@@ -85,13 +84,13 @@ public class rand_key{
 		BigInteger test_key = get_nextkey(seed, a, c);
 		System.out.println("Key: "+test_key);
 		System.out.println("Key in Bit: "+to_bin(test_key));
-		/*System.out.println("Erste Maske: "+ get_mask(64));
+		System.out.println("Erste Maske: "+ get_mask(64));
 		BigInteger test = BigInteger.valueOf(35);
 		System.out.println("Alles: "+to_bin(test));
 		BigInteger mask = get_mask(test.bitLength());
 		BigInteger right_side= test.and(mask);
 		System.out.println("Maske: "+to_bin(mask));
-		System.out.println("Rechts: "+to_bin(right_side));*/
+		System.out.println("Rechts: "+to_bin(right_side));
 		
 		
 
