@@ -35,10 +35,10 @@ Ziel ist es einen \glqq zufälligen\grqq{} Schlüssel zu erzeugen, der unendlich
 
 \subsubsection{Linearer Kongruenzgenerator}
 \begin{align*}
-        x_i=\left(\left( x_{i-1}\cdot a\right) +c\right) \text{mod } 2^n
+    x_i=\left(\left( x_{i-1}\cdot a\right) +c\right) \text{mod } 2^n
 \end{align*}
 
-$x_i$ ist ein neuer „Zufallswert“, der dem Schlüssel zugeordnet wird. 
+$x_i$ ist ein neuer „Zufallswert“, der dem Schlüssel zugeordnet wird.
 $x_{i-1}$ ist dementsprechend der vorherige Wert, der bestimmt wurde.
 Da jeder Wert aus der Menge aller $x_i$ erst durch einen vorherigen Wert entsteht, muss es einen
 Startwert geben: $x_0 = seed $.
