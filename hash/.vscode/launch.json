@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch KeyGenerator",
+            "request": "launch",
+            "mainClass": "KeyGenerator",
+            "projectName": "hash_e590f9"
+        },
+        {
+            "type": "java",
             "name": "Launch Hash",
             "request": "launch",
             "mainClass": "Hash",
