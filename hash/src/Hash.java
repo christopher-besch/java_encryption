@@ -29,7 +29,7 @@ public class Hash {
         // BigInteger block_key = get_block_key(seed);
 
         // System.out.println(block_key);
-        encrypt_file("src/test.java_out", "Hello World!", BigInteger.valueOf(12453));
+        encrypt_file("rick.mp4_out", "Hello World!", BigInteger.valueOf(12453));
     }
 
     private static void encrypt_file(String file_path, String input_passphrase, BigInteger nonce) {
