@@ -7,15 +7,115 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Random;
 
-public class App {
+public class keygarantie {
     public static void main(String args[]) {
         // read console arguments
         String input_files[];
         String output_file_or_folder;
         boolean random_nonce = false;
-        BigInteger nonce;
-        String passphrase;
+        BigInteger nonce = BigInteger.valueOf(0);
+        String passphrase = "";
+        boolean passphrase_missing = true;
+        boolean nonce_missing = true;
 
+        int idx = 0;
+
+        for (; idx < args.length; idx++) {
+            if (args[idx].charAt(0) == '-') {
+                switch (args[idx]) {
+                case "--help":
+                    System.out.println("Usage: java keygarantie [OPTION]... [SOURCE] [DEST]");
+                    System.out.println("  or:  java keygarantie [OPTION]... [SOURCE]... [DIRECTORY]");
+                    System.out.println("Encrypt SOURCE into DEST, or multiple SOURCE(s) into DIRECTORY.");
+                    System.out.println();
+                    System.out.println("-r\t\tcreate, use and output random nonce instead of user defined nonce");
+                    System.out.println("-p [PASSPHRASE]\tuse this passphrase for the encryption");
+                    System.out.println(
+                            "-n [NONCE]\tuse this nonce for the encryption (will be overwritten by -r option)");
+                    System.exit(0);
+                case "-r":
+                    random_nonce = true;
+                    nonce_missing = false;
+                    break;
+                case "-p":
+                    if (idx == args.length) {
+                        System.err.println("keygarantie: -p requires passphrase");
+                        System.err.println("Try 'java keygarantie --help' for more information.");
+                        System.exit(1);
+                    }
+                    idx++;
+                    passphrase = args[idx];
+                    passphrase_missing = false;
+                    break;
+                case "-n":
+                    if (idx == args.length) {
+                        System.err.println("keygarantie: -n requires nonce");
+                        System.err.println("Try 'java keygarantie --help' for more information.");
+                        System.exit(1);
+                    }
+                    idx++;
+                    try {
+                        nonce = new BigInteger(args[idx]);
+                    } catch (NumberFormatException e) {
+                        System.err.println("keygarantie: -n requires a numeric value as nonce");
+                        System.err.println("Try 'java keygarantie --help' for more information.");
+                        System.exit(1);
+                    }
+                    nonce_missing = false;
+                    break;
+                default:
+                    System.err.println("keygarantie: unrecognized option '" + args[idx] + "'");
+                    System.err.println("Try 'java keygarantie --help' for more information.");
+                    System.exit(1);
+                }
+            } else
+                break;
+        }
+
+        if (nonce_missing || passphrase_missing) {
+            System.err.println("keygarantie: passphrase and/or nonce missing");
+            System.err.println("Try 'java keygarantie --help' for more information.");
+            System.exit(1);
+        }
+
+        if (random_nonce) {
+            Random r = new Random();
+            nonce = BigInteger.valueOf(r.nextInt());
+            System.out.println("Nonce: " + nonce);
+        }
+
+        // are there enough paths given?
+        if (idx + 2 > args.length) {
+            System.err.println("keygarantie: missing file operand");
+            System.err.println("Try 'java keygarantie --help' for more information.");
+            System.exit(1);
+        }
+        input_files = Arrays.copyOfRange(args, idx, args.length - 1);
+        output_file_or_folder = args[args.length - 1];
+
+        try {
+            // encrypt file
+            if (input_files.length == 1) {
+                System.out.println("encrypting " + input_files[0] + "...");
+                encrypt_file(input_files[0], output_file_or_folder, passphrase, nonce);
+            } else {
+                // create output folder
+                File out_directory = new File(output_file_or_folder);
+                if (!out_directory.exists())
+                    out_directory.mkdir();
+
+                // encrypt files
+                for (int file_idx = 0; file_idx < input_files.length; file_idx++) {
+                    System.out.println("encrypting " + input_files[file_idx] + "...");
+                    String[] input_path_split = input_files[file_idx].split("/");
+                    String out_path = output_file_or_folder + "/" + input_path_split[input_path_split.length - 1];
+                    encrypt_file(input_files[file_idx], out_path, passphrase, nonce);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
         System.out.println("All done, enjoy!");
     }
 
@@ -29,7 +129,9 @@ public class App {
             file_input_stream.read(bytes);
             file_input_stream.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("can't read file '" + input_file + "'");
+            System.err.println("Try 'java keygarantie --help' for more information.");
+            System.exit(1);
         }
 
         BigInteger passphrase = division_hash(input_passphrase);
@@ -54,12 +156,9 @@ public class App {
             output_stream.write(bytes);
             output_stream.close();
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try (FileOutputStream output_stream = new FileOutputStream(output_file)) {
-            output_stream.write(bytes);
-        } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("can't write to output file '" + output_file + "'");
+            System.err.println("Try 'java keygarantie --help' for more information.");
+            System.exit(1);
         }
     }
 
@@ -81,27 +180,6 @@ public class App {
         short[][] matrix = fill_matrix(passphrase, block_num, nonce);
         transpose(matrix);
         return convert_to_big_int(matrix);
-    }
-
-    private static void print_matrix(short[][] matrix) {
-        for (int x = 0; x < 4; x++) {
-            System.out.println();
-            for (int y = 0; y < 4; y++) {
-                System.out.println(matrix[x][y]);
-            }
-        }
-    }
-
-    private static void print_big_int_bits(BigInteger number) {
-        byte[] bytes = number.toByteArray();
-        for (int idx = 0; idx < bytes.length; idx++) {
-            for (int j = 0; j < 8; j++)
-                if ((bytes[idx] & (1 << (8 - j))) != 0)
-                    System.out.print(1);
-                else
-                    System.out.print(0);
-        }
-        System.out.println();
     }
 
     private static int fill(byte[] list, byte[] input, int start_idx, int length) {
