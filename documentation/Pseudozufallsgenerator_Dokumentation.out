@@ -1,6 +1,0 @@
-\BOOKMARK [1][-]{section.1}{Dokumentation Pseudozufallsgenerator.}{}% 1
-\BOOKMARK [2][-]{subsection.1.1}{Vorgehensweise}{section.1}% 2
-\BOOKMARK [3][-]{subsubsection.1.1.1}{Linearer Kongruenzgenerator}{subsection.1.1}% 3
-\BOOKMARK [2][-]{subsection.1.2}{Entstehung des Schl\374ssel.}{section.1}% 4
-\BOOKMARK [2][-]{subsection.1.3}{Abscheinden der linken Bith\344lfte}{section.1}% 5
-\BOOKMARK [2][-]{subsection.1.4}{Pseudozufallsgenerator als Klasse}{section.1}% 6

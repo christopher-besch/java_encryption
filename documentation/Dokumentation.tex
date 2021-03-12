@@ -24,16 +24,17 @@
 \title{Dokumentation Verschlüsslungsverfahren}
 
 \begin{document}
-
 \maketitle
 \tableofcontents
 \newpage
-
-Es wird ein ein symmetrisches Verschlüsslungsverfahren vorgestellt. Das Verfahren benutzt zur eigentlichen Verschlüsslung XOR. Hier liegt der Vorteil darin, dass die Ver- und Entschlüsslung gleich ablaufen. Durch eine vorherige Transposition des Textes, einer Hashfunktion, die das Passwort sichert und einen Schlüsselgenerator, der einen unendlich langen Pseudozufallsschlüssel erzeugen kann, wird die Sicherheit verbessert. 
-\section{Ablauf Verschlüsslung}
+\section{Abstract}
+Es wird ein symmetrisches Verschlüsselungsverfahren vorgestellt. Mit Hilfe einer Stromverschlüsslung wird die Bitanzahl eines Hashwerts erweitert und anschließend ein Schlüsselfluss erzeugt, der den KLartext mit XOR verschlüsselt.  
+\section{Einleitung}
+Symmetrische Verschlüsselungsverfahren sind dadurch  gekennzeichnet, dass der Schlüssel zur Ver- und Entschlüsslung gleich bleibt. Der Schlüssel soll daher gut bearbeitet und für einen Angriff wenig Fläche schaffen. Zunächst wird das Passwort auf einen Hashwert abgebildet. Dessen Bitanzahl wird durch eine Stromverschlüsselung erweitert und auf einen Seed dargestellt. Aus diesem Seed entsteht ein pseudo zufälliger Schlüsselstrom, der den endgültigen Schlüssel für XOR liefert. 
+\section{Verschlüsslungsablauf}
 Jegliche Eingabe wird in Binär konvertiert. 
-\subsection{Transposition}
-\subsection{Hashfunktiom}
+\subsection{Hashfunktion}
+\subsection{Stromverschlüsselung}
 \subsection{Pseudozufallsgenerator}
 Ziel ist es einen \glqq zufälligen\grqq{} Schlüssel zu erzeugen, der unendlich lang werden kann, um unbeschränkt große Bitanzahlen zu verschlüsseln.
 \subsubsection{Linearer Kongruenzgenerator}
@@ -83,8 +84,33 @@ man innerhalb der Klasse mit Hilfe einer Methode jeden nächsten Teilschlüssel 
 Bitanzahl $n$ erzeugen kann. Und die Möglichkeit besteht den zusammengesetzten Schlüssel $k$
 aus den Teilschlüsseln $k_i$ unbeschränkt lang zu wählen.
 \section{XOR}
-\section{Ablauf Entschlüsslung}
-\section{Analyse}
+XOR verschlüsselt die Bits des Textes mit den des gleichlangen Schlüssels. Dabei werden Schlüssel und Text gegenübergestellt. Dabei kann die \glqq Bithierarchie\grqq{} durch folgende Wahrheitstabelle veranschaulicht werden.
+\medskip
+ 
+\begin{tabular}[h]{c|c|c}
+Text & Schlüssel & Geheimtext\\
+\hline
+0 & 0 & 0\\
+\hline
+1 & 1 & 0\\
+\hline
+1 & 0 & 1\\
+\end{tabular}
+
+\medskip
+Aus $011$ wird also $001$. Möchte man den Geheimtext wieder Entschlüsseln wird Gleiches verwendet.
+\medskip
+
+\begin{tabular}[h]{c|c|c}
+Geheimtext & Schlüssel & Text\\
+\hline
+0 & 0 & 0\\
+\hline
+0 & 1 & 1\\
+\hline
+1 & 0 & 1\\
+\end{tabular}
+\section{Fazit}
 \section{Beispiele}
 
 

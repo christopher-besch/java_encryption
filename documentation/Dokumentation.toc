@@ -1,0 +1,14 @@
+\babel@toc {german}{}
+\contentsline {section}{\numberline {1}Abstract}{2}{section.1}%
+\contentsline {section}{\numberline {2}Einleitung}{2}{section.2}%
+\contentsline {section}{\numberline {3}Verschlüsslungsablauf}{2}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Hashfunktion}{2}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Stromverschlüsselung}{2}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Pseudozufallsgenerator}{2}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Linearer Kongruenzgenerator}{2}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}Enstehung des Schlüssel.}{2}{subsubsection.3.3.2}%
+\contentsline {subsubsection}{\numberline {3.3.3}Abscheinden der linken Bithälfte}{3}{subsubsection.3.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.4}Pseudozufallsgenerator als Klasse}{3}{subsubsection.3.3.4}%
+\contentsline {section}{\numberline {4}XOR}{3}{section.4}%
+\contentsline {section}{\numberline {5}Fazit}{4}{section.5}%
+\contentsline {section}{\numberline {6}Beispiele}{4}{section.6}%
