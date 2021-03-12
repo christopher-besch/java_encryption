@@ -4,36 +4,88 @@ import java.nio.ByteOrder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Arrays;
+import java.util.Random;
 
 public class Encryption {
     public static void main(String args[]) {
-        // BigInteger passphrase = BigInteger.valueOf(3286);
-        // BigInteger passphrase2 = BigInteger.valueOf(3287);
-        // BigInteger passphrase3 = division_hash("Hello World!");
-        // BigInteger block_num = BigInteger.valueOf(126);
-        // BigInteger block_num2 = BigInteger.valueOf(125);
-        // BigInteger nonce = BigInteger.valueOf(324);
-        // BigInteger nonce2 = BigInteger.valueOf(323);
+        // read console arguments
+        String input_files[];
+        String output_file_or_folder;
+        boolean random_nonce = false;
+        BigInteger nonce;
+        String passphrase;
 
-        // System.out.println(generate_seed(passphrase, block_num, nonce));
-        // System.out.println(generate_seed(passphrase2, block_num, nonce));
-        // System.out.println(generate_seed(passphrase, block_num2, nonce));
-        // System.out.println(generate_seed(passphrase, block_num, nonce2));
-        // System.out.println(generate_seed(passphrase3, block_num, nonce2));
-        // for (int idx = 0; true; idx++) {
-        // System.out.println(generate_seed(passphrase3, block_num,
-        // nonce.add(BigInteger.valueOf(idx))));
-        // }
+        int idx = 0;
 
-        // BigInteger seed = generate_seed(passphrase, block_num, nonce);
-        // BigInteger block_key = get_block_key(seed);
+        for (; idx < args.length; idx++) {
+            if (args[idx].charAt(0) == '-') {
+                switch (args[idx]) {
+                case "--help":
+                    System.out.println("Usage: [name undecided] [OPTION]... [PASSWD] [NONCE] [SOURCE] [DEST]");
+                    System.out.println("  or:  [name undecided] [OPTION]... [PASSWD] [NONCE] [SOURCE]... [DIRECTORY]");
+                    System.out.println("  or:  [name undecided] [OPTION]... -r [PASSWD] [SOURCE]... [DIRECTORY]");
+                    System.out.println("Encrypt SOURCE into DEST, or multiple SOURCE(s) to DIRECTORY.");
+                    System.out.println("PASSWD and NONCE are being used per default.");
+                    System.out.println();
+                    System.out
+                            .println("-r, --random-nonce\tcreate use and output random nonce instead of user defined");
+                    System.out.println("\t\t\tuser defined nonce can be omitted when used");
+                    System.exit(0);
+                case "-r":
+                    random_nonce = true;
+                    break;
+                case "--random-nonce":
+                    random_nonce = true;
+                    break;
+                default:
+                    System.err.println("[name undecided]: unrecognized option '" + args[idx] + "'");
+                    System.err.println("Try '[name undecided] --help' for more information.");
+                    System.exit(1);
+                }
+            } else
+                break;
+        }
 
-        // System.out.println(block_key);
-        encrypt_file("rick.mp4_out", "Hello World!", BigInteger.valueOf(12453));
+        // are passphrase and nonce given?
+        if (idx + 2 > args.length || (idx + 1 > args.length && random_nonce)) {
+            System.err.println("[name undecided]: missing passphrase and/or nonce");
+            System.err.println("Try '[name undecided] --help' for more information.");
+            System.exit(1);
+        }
+        passphrase = args[idx];
+        idx++;
+        if (random_nonce) {
+            Random r = new Random();
+            nonce = BigInteger.valueOf(r.nextInt());
+        } else {
+            nonce = new BigInteger(args[idx]);
+            idx++;
+        }
+
+        // are there enough paths given?
+        if (idx + 2 > args.length) {
+            System.err.println("[name undecided]: missing file operand");
+            System.err.println("Try '[name undecided] --help' for more information.");
+            System.exit(1);
+        }
+        input_files = Arrays.copyOfRange(args, idx, args.length - 2);
+        output_file_or_folder = args[args.length - 1];
+
+        // encrypt file
+        if (input_files.length == 1) {
+            encrypt_file(input_files[0], output_file_or_folder, passphrase, nonce);
+        } else {
+            for (int file_idx = 0; idx < input_files.length; idx++) {
+                System.out.println("encryption " + input_files[file_idx] + "...");
+                encrypt_file(input_files[file_idx], output_file_or_folder + input_files[file_idx], passphrase, nonce);
+            }
+        }
+        System.out.println("All done, enjoy!");
     }
 
-    private static void encrypt_file(String file_path, String input_passphrase, BigInteger nonce) {
-        File input_file = new File(file_path);
+    private static void encrypt_file(String in_file, String out_file, String input_passphrase, BigInteger nonce) {
+        File input_file = new File(in_file);
 
         FileInputStream file_input_stream = null;
         byte[] bytes = new byte[(int) input_file.length()];
@@ -61,7 +113,7 @@ public class Encryption {
             current_block_key_idx++;
         }
 
-        File output_file = new File(file_path + "_out");
+        File output_file = new File(out_file);
         try {
             FileOutputStream output_stream = new FileOutputStream(output_file);
             output_stream.write(bytes);
