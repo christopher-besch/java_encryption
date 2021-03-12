@@ -349,18 +349,4 @@ public class keygarantie {
         // 00001 -> 10000
         return BigInteger.valueOf(1).shiftLeft(expo);
     }
-
-    // converts integer to bon
-    public static String to_bin(BigInteger x) {
-        String bin = "";
-        if (0 == x.compareTo(BigInteger.valueOf(0))) {
-            bin = "0";
-        }
-        while (1 == x.compareTo(BigInteger.valueOf(0))) {
-            BigInteger r = x.mod(BigInteger.valueOf(2));
-            x = x.divide(BigInteger.valueOf(2));
-            bin = r + bin;
-        }
-        return bin;
-    }
 }
