@@ -33,9 +33,10 @@
 
 \section{Abstract}
 
-Keygarantie ist ein symmetrisches 128-bit Stromverschlüsselungsverfahren, das eine Anlehnung an ChaCha und Erweiterung darstellt\cite{Bernstein2008}.
+Keygarantie ist ein symmetrisches 128-bit Stromverschlüsselungsverfahren, das eine Anlehnung an und Erweiterung von ChaCha darstellt\cite{Bernstein2008}.
 Damit basiert es auf XOR, was die Ver- und Entschlüsselung mit dem selben Algorithmus erlaubt.
-Für die Generation des mit XOR verwendeten Stromschlüssels wird ein komplexer und praktisch äußerst schwer umkehrbarer Mechanismus aus mehreren mathematischen Methoden verwendet. Selbst bei kompromittiertem Klartext bleibt daher die verwendete Passphrase geheim.
+Für die Generation des mit XOR verwendeten Stromschlüssels wird ein komplexer und praktisch äußerst schwer umkehrbarer Mechanismus aus mehreren mathematischen Methoden verwendet.
+Selbst bei kompromittiertem Klartext bleibt daher die verwendete Passphrase geheim.
 
 \section{Übersicht}
 
@@ -49,38 +50,37 @@ Ist dies der Fall, kann zusammen mit dem öffentlichen Geheimtext auf den verwen
 Dadurch wären alle zukünftigen Transmissionen ebenfalls kompromittiert.
 Dies wäre fatal.
 
-Hierbei ist der Vorteil, dass Bits und beispielsweise keine Buchstaben oder Zahlen verschlüsselt werden.
-Daher können jegliche Dateien ver- und entschlüsselt werden.
-Bei Aes muss der gesamte Input erst in den Speicher geladen werden\cite{Pitchaiah2012}.
-Dies ist bei Keygarantie durch die Stromverschlüsselung nicht notwendig.
-Hierdurch können beispielsweise Videostreams on-the-fly ver- und entschlüsselt werden.
+Ein Vorteil ist, dass Bits und keine Buchstaben oder Zahlen verschlüsselt werden.
+Keygarantie findet damit für jegliche Dateien Anwendung.
+Aes muss den gesamten Input erst in den Speicher laden\cite{Pitchaiah2012}.
+Keygarantie muss dies durch die Stromverschlüsselung nicht und kann Streams on-the-fly ver- und entschlüsselt.
 
 \medskip
 Es muss also davon ausgegangen werden, dass unter Umständen der Stromschlüssel öffentlich bekannt ist.
 Daher ist sicherzustellen, dass jeder Teil des Stromschlüssels praktisch nie erneut für die Verschlüsselung mit XOR verwendet wird.
-Um dies zu erreichen wird ein 128-bit Schlüssel in einer Matrix über 30 Runden diffundiert.
+Um dies zu erreichen, diffundiert sich ein 128-bit Schlüssel in einer Matrix über 30 Runden.
 Dieses Verfahren generiert einen 256-bit Seed.
 
 \medskip
-Der Seed wird anschließend in einem Pseudozufallsgenerator eingesetzt, um eine unendliche Menge an Bits für den Stromschlüssels zu generieren.
-Praktisch werden allerdings aus Sicherheitsgründen nur 512 Bits pro Seed verwendet, wodurch weniger Information für einen Angriff vorhanden sind.
+Ein Pseudozufallsgenerator generiert eine unendliche Menge an Bits für den Stromschlüssels zu generieren, determiniert durch einen 256-bit Seed.
+Praktisch werden allerdings aus Sicherheitsgründen nur 512 Bits pro Seed produziert, wodurch weniger Information für einen Angreifer vorhanden sind.
 Diese 512 Bits bilden einen Blockschlüssel.
-Daher muss der Klartext in 512-bit Blöcke unterteilt werden, die aufsteigend und eindeutig mit einer Blocknummer nummeriert werden.
+Daher muss der Klartext in 512-bit Blöcke unterteilt werden, die aufsteigend und eindeutig mit einer Blocknummer nummeriert sind.
 Hieraus folgt, dass für jeden einzelnen Block ein anderer Seed für den Pseudozufallsgenerator verwendet werden muss.
 Durch diesen Schritt, der mit modernen Methoden praktisch unumkehrbar ist, wird die geforderte Sicherheit garantiert.
 
 Durch die genannte Einteilung in Blöcke ergibt sich ein weiterer Vorteil:
-Es kann zu einer bestimmten Stelle innerhalb des Stream gesprungen werden, ohne erst alle vorherigen Blöcke ver- oder entschlüsseln zu müssen.
+Es kann zu einer bestimmten Stelle innerhalb des Streams gesprungen werden, ohne erst alle vorherigen Blockschlüssel berechnen zu müssen.
 
 \section{Linearer Kongruenzgenerator}
 
-Das Ziel ist es, einen theoretisch unendlich langen Schlüsselstrom zu erzeugen, der von einem Seed abhängt, allerding nicht auf diesen schließen lässt.
+Das Ziel ist es, einen theoretisch unendlich langen Schlüsselstrom zu erzeugen, der von einem Seed abhängt, allerdings nicht auf diesen schließen lässt.
 Er soll wie zufälliges Rauschen aussehen.
 Kein Teil des Schlüsselstroms soll in einem praktischen Bereich erneut vorkommen.
-Hierzu wird davon ausgegangen, dass jeder benutzte Seed einzigartig.
+Hierzu wird davon ausgegangen, dass jeder benutzte Seed einzigartig ist.
 
 \medskip
-Der lineare Kongruenzgenerator erzeugt zufällig scheinende Werte $x_i$, die allerdings von ihrem Vorgänger $x_{i-1}$ abhängen.
+Der lineare Kongruenzgenerator erzeugt als Schlüsselstromgenerator zufällig scheinende Werte $x_i$, die allerdings durch ihren Vorgänger $x_{i-1}$ determiniert sind.
 Daher ergibt sich eine rekursive Funktion:
 \begin{align*}
     x_i = \left(\left(x_{i-1} \cdot a\right) + c\right) \text{mod } 2^n
@@ -93,16 +93,17 @@ Daher ergibt sich eine rekursive Funktion:
     \item $a$ sei aus $\mathbb{N}<2$ und entspricht $134775813$.
 \end{itemize}
 Da jeder Wert aus der Menge aller $x_i$ erst durch einen vorherigen Wert entsteht, muss es einen Startwert $x_0$ geben, den Seed.
-Der Seed ist abgesehen von den generierten Werten die einzige geheime und einem Angreifer unbekannte Variable.
+Der Seed ist abgesehen von den generierten Werten die einzige einem Angreifer unbekannte Variable.
 Da $n = 64$ produziert der Generator Werte zwischen $0$ und $2^{64}$.
 
 \medskip
-Dieses Verfahren weist jedoch eine Periode nach spätestens $2^{64}$ WErten auf, nach der sich die Ausgaben wiederholen.
+Dieses Verfahren weist jedoch eine Periode nach spätestens $2^{64}$ Werten auf, nach der sich die Ausgaben wiederholen.
 Da jeder Wert durch den Vorgänger determiniert ist, kann jeder pro Periode nur einmal vorkommen.
-Dies ist ein Problem, da so ein Angreifer weiß, dass, wenn zum Beispiel die Zahl $143$ verwendet wurde, diese Zahl erst nach Periodenende erneut vorkommen kann.
+Somit weiß ein Angreifer, dass wenn zum Beispiel die Zahl $143$ ausgegeben wurde, diese Zahl erst nach Periodenende erneut vorkommt.
+Das ist ein Problem.
 
 Um dies zu umgehen wird nur die Hälfte jedes Wertes ausgegeben und für die eigentliche XOR Verschlüsselung eingesetzt.
-Intern wird weiterhin der ganze Wert für die Generation des Nächsten verwendet.
+Intern wird geheim weiterhin der ganze Wert für die Generation des Nächsten verwendet.
 Daher wird der Bereich der ausgegebenen Werte auf bis zu $2^{32}$ verkleinert.
 
 So wird die Periode nicht umgangen, weshalb nur eine begrenzte Menge an Werten pro Seed verwendet werden darf.
@@ -112,7 +113,7 @@ Das Problem der in einer Periode nicht wiederkehrenden Werte, wurde so allerding
 
 Das Ziel dieses Schrittes ist es, einen einzigartigen Seed zu generieren.
 Dies setzt der Schlüsselstromgenerator voraus.
-Zudem sollte dieser Rechenschritt praktisch unumkehrbar ist.
+Zudem ist dieser Rechenschritt praktisch unumkehrbar.
 Es wird eine $4 \times 4$ Matrix verwendet, die aus folgenden Teilen besteht:
 \begin{itemize}
     \item einer öffentlichen Konstante, sie entspricht der ASCII-Repräsentation von
@@ -123,11 +124,10 @@ Es wird eine $4 \times 4$ Matrix verwendet, die aus folgenden Teilen besteht:
     \item der öffentlichen Blocknummer und
     \item einer ebenfalls öffentlichen Nonce.
           Die Nonce ist eine \glqq \textbf{N}umber used \textbf{ONCE}\grqq{}, die pro Verschlüsselung neu gewählt werden muss.
-          Hierdurch werden Replay-Angriffe praktisch unmöglich, da ein so ein kompromittierter Stromschlüssel nie erneut zur Ver- und Entschlüsselung eingesetzt werden kann.
+          Hierdurch werden Replay-Angriffe praktisch unmöglich, da so ein kompromittierter Stromschlüssel nie erneut zur Ver- und Entschlüsselung eingesetzt werden kann.
 \end{itemize}
 
 Die Elemente der Matrix sind 16-bit Wörter und sind im Ausgangszustand wie folgt angeordnet:
-
 \begin{center}
     \begin{tabular}{ c c c c }
         const      & const      & const & const \\
@@ -168,7 +168,7 @@ Wenn die Wörter zeilenweise nummeriert werden, ergibt sich die folgenden Reihen
 \label{sec:Achtelrunde}
 
 Jede Achtelrunde nimmt vier 2-bit Wörter ($a$ bis $d$) als Eingabe entgegen und produziert eine Ausgabe von vier 2-bit Wörtern.
-Das Ziel dieses Verfahren ist es, alle Eingangswörter derartig miteinander in Beziehung zu setzten, dass eine kleine Änderung eines Eingangswortes alle Ausganswörter ausschalgebend ändert.
+Das Ziel dieses Verfahren ist es, alle Eingangswörter derartig miteinander in Beziehung zu setzten, dass eine kleine Änderung eines Eingangswortes alle Ausgaben ausschalgebend ändert.
 Hierzu werden die folgenden Berechnungen durchgeführt:
 
 \begin{align*}
@@ -202,7 +202,7 @@ Es wird die übliche Schreibweise der C Programmiersprache verwendet.
 Zur Generierung des in der Matrix verwendeten Schlüssels wird eine Hashfunktion verwendet.
 Sie muss nicht besonders sicher und unumkehrbare sein, da der Schlüsslestromgenerator und die Matrix diese Aufgabe bereits übernehmen.
 Der Zweck dieser ist statt dessen die Reduzierung---beziehungsweise Erweiterung---einer Passphrase auf die von der Matrix geforderten 128 Bits.
-Jegliche ASCII-Buchstaben können so für die Passphrase verwendet werden.
+Jegliche ASCII-Zeichen können so für die Passphrase verwendet werden.
 Daher wird das simple Division-Rest-Verfahren\cite{Silies2021} angewendet.
 
 \begin{itemize}
@@ -215,20 +215,20 @@ Es gilt:
     h = \left( s_0 \cdot 31^{n-1} + s_1 \cdot 31^{n-2} + ... + s_{n-2} \cdot 31 + s_{n-1}\right)\text{mod } p
 \end{align*}
 
-\section{Implementation und Beispiele}
+\section{Implementationsabhängige Eigenschaften}
 
 Das genannte Verfahren wird in Java implementiert.
 
 Die Eingabedatei wird ausgelesen und in Blöcke unterteilt.
 Dabei beträgt die Größe dieser 512 Bits.
 Andere Größen sind ebenfalls möglich.
-Allerdings muss eine Ballance zwischen
+Allerdings muss eine Balance zwischen
 \begin{itemize}
     \item einer hohen kryptographischen Sicherheit bei vielen, kleineren Blöcken und
     \item einer geringen Laufzeit bei wenigeren, größeren Blöcken.
 \end{itemize}
 
-Diese Variable Blockgröße ergibt sich aus der theoretisch unbegrenzten Länge der Blockschlüssel.
+Diese variable Blockgröße ergibt sich aus der theoretisch unbegrenzten Länge der Blockschlüssel.
 Zuerst wird die eingegebene Passphrase in einen 128-bit Hashwert konvertiert.
 
 Das Programm liefert die Option, die Nonce zufällig selbst zu generieren.
@@ -241,11 +241,69 @@ Dies ist eine Eigenschaft, die mit AES nur in der Implementation erreicht werden
 Sei die Laufzeit von der verwendeten Passphrase oder Klartext abhängig.
 Dann erhält ein Angreifer, der den Stromverbrauch oder die verwendeten CPU-Zyklen misst, eigentlich geheime Informationen.
 
+\section{Bespiele}
 
-\section{Zusammenfassung}
+\subsection{Textdatei}
 
-Keygarantie ist ein experimentelles, nicht empfohlenes, Verschlüsselungsverfahren, das viele Aspekte von ChaCha übernimmt und abwandelt.
-Für die praktische Verwendung im Secure Socket Layer ist es nicht empfohlen, da weitreichende Kryptoanalysen noch nicht durchgeführt aber für dieses Anwendungsgebiet notwendig wären.
+Das Programm wird mit einigen Beispieldateien ausgeführt.
+Der folgende Text
+\begin{center}
+    \includegraphics[width=1.0\textwidth]{curiosity_orig.png}
+\end{center}
+wird mit diesem Befehl verschlüsselt:
+\begin{verbatim}
+    \$ java keygarantie -p "Hello World" -n 1984
+    examples/origin/curiosity.txt examples/enc/curiosity.txt
+    encrypting 'examples/origin/curiosity.txt' with nonce 1984...
+    All done, enjoy!
+\end{verbatim}
+Es ergibt sich die folgende Ausgabe, die nur annähernd dargestellt werden kann:
+\begin{center}
+    \includegraphics[width=1.0\textwidth]{curiosity_enc.png}
+\end{center}
+
+Nun wird mit dem folgenden Befehl die Datei wieder entschlüsselt:
+\begin{verbatim}
+    \$ java keygarantie -p "Hello World" -n 1984
+    examples/enc/curiosity.txt examples/dec/curiosity.txt
+    encrypting 'examples/enc/curiosity.txt' with nonce 1984...
+    All done, enjoy!
+\end{verbatim}
+Der originale Text ist so nun wieder lesbar:
+\begin{center}
+    \includegraphics[width=1.0\textwidth]{curiosity_dec.png}
+\end{center}
+
+\subsection{Videodatei}
+
+Die oben genannten Befehle werden mit angepassten Dateipfaden auf die Videodatei \textit{cute\_cat.mp4}, die sich in dem Unterordner \textit{examples/orig} findet.
+Wie erwartet, ist die verschlüsselte Datei nicht lesbar, die entschlüsselte hingegen ist es.
+Diese finden sich in den Unterordnern \textit{examples/enc} respektive \textit{examples/dec}.
+
+\section{Fazit}
+
+\paragraph{Vorteile}
+\begin{itemize}
+    \item Das gleiche Verfahren kann zur Ver- und Entschlüsselung verwendet werden.
+    \item Keygarantie kann mit jegliche Dateien umgehen.
+    \item Selbst bei teilweiser Kompromittierung des Schlüsselstroms können keinen weiteren Bereiche durch einen Angriff entschlüsselt werden.
+          Replay Angriffe sind praktisch unmöglich.
+    \item Es können Streams ver- und entschlüsselt werden.
+    \item Der Nutzer kann zu einem beliebigen Teil des Stream springen.
+    \item Der lineare Kongruenzgenerator stellt eine Erweiterung zu ChaCha dar und garantiert weitere Sicherheit.
+    \item Viele Parameter, wie die Blockgröße, die Passphrasenlänge oder die mathematischen Konstanten im linearen Kongruenzgenerator, sind ohne großen Aufwand leicht veränderbar.
+    \item Die Laufzeit wächst linear mit der Länge des Klartextes.
+    \item Es können jegliche mit ASCII repräsentierbare Zeichen für das Passphrase verwendet werden.
+\end{itemize}
+
+\paragraph{Nachteile}
+\begin{itemize}
+    \item Keygarantie verwendet 16-bit statt 32-bit Wörtern ChaChas in der Matrix.
+    \item Die verwendete Implementation verwendet unter Umständen für mehrere Dateien die gleiche Nonce.
+\end{itemize}
+
+Keygarantie ist ein experimentelles, nicht empfohlenes, Verschlüsselungsverfahren, das viele Aspekte von ChaCha übernimmt, abwandelt und erweitert.
+Für die praktische Verwendung im Secure Socket Layer ist es ausdrücklich nicht empfohlen, da weitreichende Kryptoanalysen noch nicht durchgeführt wurden.
 
 Ausschließlich für die in RFC 1149 standardisierte Übertragung von IP Datagrams\cite{Waitzman1990} ist dieses Verfahren vertretbar und empfohlen.
 
