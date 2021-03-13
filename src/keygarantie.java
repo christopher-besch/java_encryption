@@ -314,7 +314,7 @@ public class keygarantie {
         while (current_key_length < key_length)// until bit length bigger or equal to n
         {
             // linear congruence generator
-            x = x.multiply(BigInteger.valueOf(134775813)).add(BigInteger.valueOf(1)).mod(power_base_2(key_length));
+            x = x.multiply(BigInteger.valueOf(134775813)).add(BigInteger.valueOf(1)).mod(power_base_2(64));
             int x_length = x.bitLength();
             // mask of same length
             BigInteger mask = get_mask(x_length);

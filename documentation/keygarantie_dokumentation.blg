@@ -3,46 +3,47 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: keygarantie_dokumentation.aux
 The style file: alpha.bst
 Database file #1: database.bib
+Warning--empty note in Silies2021
 Warning--empty journal in Bernstein2008
-You've used 2 entries,
+You've used 3 entries,
             2543 wiz_defined-function locations,
-            572 strings with 4703 characters,
-and the built_in function-call counts, 559 in all, are:
-= -- 51
-> -- 16
-< -- 2
-+ -- 4
-- -- 4
-* -- 30
-:= -- 99
-add.period$ -- 6
-call.type$ -- 2
-change.case$ -- 10
-chr.to.int$ -- 2
-cite$ -- 3
-duplicate$ -- 25
-empty$ -- 46
-format.name$ -- 8
-if$ -- 110
+            577 strings with 4773 characters,
+and the built_in function-call counts, 793 in all, are:
+= -- 75
+> -- 24
+< -- 3
++ -- 6
+- -- 6
+* -- 43
+:= -- 142
+add.period$ -- 9
+call.type$ -- 3
+change.case$ -- 15
+chr.to.int$ -- 3
+cite$ -- 5
+duplicate$ -- 35
+empty$ -- 60
+format.name$ -- 12
+if$ -- 153
 int.to.chr$ -- 1
 int.to.str$ -- 0
 missing$ -- 1
-newline$ -- 13
-num.names$ -- 6
-pop$ -- 16
+newline$ -- 18
+num.names$ -- 9
+pop$ -- 19
 preamble$ -- 1
-purify$ -- 12
+purify$ -- 18
 quote$ -- 0
-skip$ -- 23
+skip$ -- 32
 stack$ -- 0
-substring$ -- 14
+substring$ -- 21
 swap$ -- 1
-text.length$ -- 2
-text.prefix$ -- 2
+text.length$ -- 3
+text.prefix$ -- 3
 top$ -- 0
-type$ -- 16
-warning$ -- 1
-while$ -- 4
-width$ -- 3
-write$ -- 25
-(There was 1 warning)
+type$ -- 24
+warning$ -- 2
+while$ -- 6
+width$ -- 4
+write$ -- 36
+(There were 2 warnings)

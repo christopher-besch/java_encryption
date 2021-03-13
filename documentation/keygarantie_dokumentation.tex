@@ -49,8 +49,8 @@ Dies wäre fatal.
 
 \medskip
 Es muss also davon ausgegangen werden, dass unter Umständen der Stromschlüssel öffentlich bekannt ist.
-Daher ist sicherzustellen, dass ein bekannter Teil des Stromschlüssels praktisch nie erneut für die Verschlüsselung mit XOR verwendet wird.
-Um dies zu erreichen wird ein 128-bit Schlüssel über 30 Runden diffundiert.
+Daher ist sicherzustellen, dass jeder Teil des Stromschlüssels praktisch nie erneut für die Verschlüsselung mit XOR verwendet wird.
+Um dies zu erreichen wird ein 128-bit Schlüssel in einer Matrix über 30 Runden diffundiert.
 Dieses Verfahren generiert einen 256-bit Seed.
 
 \medskip
@@ -58,36 +58,167 @@ Der Seed wird anschließend in einem Pseudozufallsgenerator eingesetzt, um eine 
 Praktisch werden allerdings aus Sicherheitsgründen nur 512 Bits pro Seed verwendet, wodurch weniger Information für einen Angriff vorhanden sind.
 Daher muss der Klartext in 512-bit Blöcke unterteilt werden, die aufsteigend und eindeutig mit einer Blocknummer nummeriert und identifiziert werden.
 Hieraus folgt, dass für jeden einzelnen Block ein anderer Seed für den Pseudozufallsgenerator verwendet werden muss.
-Durch diesen Schritt, der praktisch mit modernen Methoden unumkehrbar ist, wird die geforderte Sicherheit garantiert.
+Durch diesen Schritt, der mit modernen Methoden praktisch unumkehrbar ist, wird die geforderte Sicherheit garantiert.
 
-\section{Pseudozufallsgenerator}
+\section{Linearer Kongruenzgenerator}
 
-Ziel ist es einen \glqq zufälligen\grqq{} Schlüssel zu erzeugen, der unendlich lang werden kann, um unbeschränkt große Bitanzahlen zu verschlüsseln.
+Das Ziel ist es, einen theoretisch unendlich langen Schlüsselstrom zu erzeugen, der von einem Seed abhängt, allerding nicht auf diesen schließen lässt.
+Er soll wie zufälliges Rauschen aussehen.
+Kein Teil des Schlüsselstroms soll in einem praktischen Bereich erneut vorkommen.
+Hierzu wird davon ausgegangen, dass jeder benutzte Seed einzigartig.
 
-\subsection{Linearer Kongruenzgenerator}
-
+\medskip
+Der lineare Kongruenzgenerator erzeugt zufällig scheinende Werte $x_i$, die allerdings von ihrem Vorgänger $x_{i-1}$ abhängen.
+Daher ergibt sich eine rekursive Funktion:
 \begin{align*}
-    x_i=\left(\left( x_{i-1}\cdot a\right) +c\right) \text{mod } 2^n
+    x_i = \left(\left(x_{i-1} \cdot a\right) + c\right) \text{mod } 2^n
 \end{align*}
 \begin{itemize}
-    \item $x_i$ ist ein neuer „Zufallswert“, der dem Schlüssel zugeordnet wird.
-    \item $x_{i-1}$ ist dementsprechend der vorherige Wert, der bestimmt wurde.
-    \item Da jeder Wert aus der Menge aller $x_i$ erst durch einen vorherigen Wert entsteht, muss es einen Startwert $x_0$ geben. Der Seed liefert diesen Startwert.
-    \item $n$ sei aus $ \mathbb{N} $ und markiert die Bitintervallgrenze in der $x_i$ liegt.
-Für das Intervall gilt also: [0, $n$].
-    \item $c$ sei aus  $ \mathbb{N}<2 $
-    \item $n$ und dient als Summand.
-    \item $a$ sei in $ \mathbb{N}< 2 $
-    \item $n$ und dienst als Multiplikator.
-
+    \item $n$ sei aus $\mathbb{N}$ und markiert die Bitintervallgrenze in der $x_i$ liegt.
+          Für das Intervall gilt also: [0, $n$].
+          $n$ ist eine öffentlich bekannte Konstante mit dem Wert $64$.
+    \item $c$ sei aus $\mathbb{N}<2$ und ist für dieses Verfahren mit $1$ festgesetzt.
+    \item $a$ sei aus $\mathbb{N}<2$ und entspricht $134775813$.
 \end{itemize}
-Die \glqq Zufallswerte\grqq{} des Kongruenzgenerators legen die Grundlage für den Blockschlüssel.
+Da jeder Wert aus der Menge aller $x_i$ erst durch einen vorherigen Wert entsteht, muss es einen Startwert $x_0$ geben, den Seed.
+Der Seed ist abgesehen von den generierten Werten die einzige geheime und einem Angreifer unbekannte Variable.
+Da $n = 64$ produziert der Generator Werte zwischen $0$ und $2^{64}$.
 
-\subsection{Enstehung des Schlüssel}
+\medskip
+Dieses Verfahren weist jedoch eine Periode nach spätestens $2^{64}$ WErten auf, nach der sich die Ausgaben wiederholen.
+Da jeder Wert durch den Vorgänger determiniert ist, kann jeder pro Periode nur einmal vorkommen.
+Dies ist ein Problem, da so ein Angreifer weiß, dass, wenn zum Beispiel die Zahl $143$ verwendet wurde, diese Zahl erst nach Periodenende erneut vorkommen kann.
+
+Um dies zu umgehen wird nur die Hälfte jedes Wertes ausgegeben und für die eigentliche XOR Verschlüsselung eingesetzt.
+Intern wird weiterhin der ganze Wert für die Generation des Nächsten verwendet.
+Daher wird der Bereich der ausgegebenen Werte auf bis zu $2^{32}$ verkleinert.
+
+So wird die Periode nicht umgangen, weshalb nur eine begrenzte Menge an Werten pro Seed verwendet werden darf.
+Das Problem der in einer Periode nicht wiederkehrenden Werte, wurde so allerdings gelöst; es kann nicht genau gesagt werden, wie oft ein bestimmter Wert pro Periode vorkommt.
+
+\section{Matrix}
+
+Das Ziel dieses Schrittes ist es, einen einzigartigen Seed zu generieren.
+Dies setzt der Schlüsselstromgenerator voraus.
+Zudem sollte dieser Rechenschritt praktisch unumkehrbar ist.
+Es wird eine $4 \times 4$ Matrix verwendet, die aus folgenden Teilen besteht:
+\begin{itemize}
+    \item einer öffentlichen Konstante, sie entspricht der ASCII-Repräsentation von
+          \begin{quotation}
+              \glqq ILoveYou\grqq{},
+          \end{quotation}
+    \item dem geheimen Schlüssel,
+    \item der öffentlichen Blocknummer und
+    \item einer ebenfalls öffentlichen Nonce.
+          Die Nonce ist eine \glqq \textbf{N}umber used \textbf{ONCE}\grqq{}, die pro Verschlüsselung neu gewählt werden muss.
+          Hierdurch werden Replay-Angriffe praktisch unmöglich, da ein so ein kompromittierter Stromschlüssel nie erneut zur Ver- und Entschlüsselung eingesetzt werden kann.
+\end{itemize}
+
+Die Elemente der Matrix sind 16-bit Wörter und sind im Ausgangszustand wie folgt angeordnet:
+
+\begin{center}
+    \begin{tabular}{ c c c c }
+        const      & const      & const & const \\
+        key        & key        & key   & key   \\
+        key        & key        & key   & key   \\
+        block\_num & block\_num & nonce & nonce \\
+    \end{tabular}
+\end{center}
+
+Diese Matrix durchläuft 30 Runden an Diffusion, wodurch eine geringfügige Änderung eines der Eingangswörter die gesamte Ausgangsmatrix beeinflusst.
+
+\medskip
+Jede Runde besteht aus acht Rechenschritten.
+Für alle werden vier Wörter aus der Matrix ausgewählt und dem in \autoref{sec:Achtelrunde} beschriebenen Verfahren übergeben.
+Die Ausgaben dieser Berechnung ersetzten die entsprechenden Eingangswerte.
+
+Die Auswahl der vier Wörter ist vordefiniert.
+Diese wird von ChaCha übernommen\cite{Bernstein2008}.
+Wenn die Wörter zeilenweise nummeriert werden, ergibt sich die folgenden Reihenfolge der Rechenschritte:
+\begin{enumerate}
+    \item Spalten:
+          \begin{itemize}
+              \item Achtelrunde(00, 04, 08, 12)
+              \item Achtelrunde(01, 05, 09, 13)
+              \item Achtelrunde(02, 06, 10, 14)
+              \item Achtelrunde(03, 07, 11, 15)
+          \end{itemize}
+    \item Diagonalen:
+          \begin{itemize}
+              \item Achtelrunde(00, 05, 10, 15)
+              \item Achtelrunde(01, 06, 11, 12)
+              \item Achtelrunde(02, 07, 08, 13)
+              \item Achtelrunde(03, 04, 09, 14)
+          \end{itemize}
+\end{enumerate}
+
+\subsection{Achtelrunden}
+\label{sec:Achtelrunde}
+
+Jede Achtelrunde nimmt vier 2-bit Wörter ($a$ bis $d$) als Eingabe entgegen und produziert eine Ausgabe von vier 2-bit Wörtern.
+Das Ziel dieses Verfahren ist es, alle Eingangswörter derartig miteinander in Beziehung zu setzten, dass eine kleine Änderung eines Eingangswortes alle Ausganswörter ausschalgebend ändert.
+Hierzu werden die folgenden Berechnungen durchgeführt:
+
+\begin{align*}
+    a & +=       b  \\
+    d & \wedge = b  \\
+    d & <<<=     6  \\
+      &             \\
+    c & +=       d  \\
+    b & \wedge = c  \\
+    c & <<<=     12 \\
+      &             \\
+    a & +=       b  \\
+    d & \wedge = b  \\
+    d & <<<=     8  \\
+      &             \\
+    c & +=       d  \\
+    b & \wedge = c  \\
+    c & <<<=     7  \\
+\end{align*}
+
+Es wird die übliche Schreibweise der C Programmiersprache verwendet.
+\cite{Bernstein2008} setzt die selbe ein.
+\begin{itemize}
+    \item $\wedge$ steht für XOR,
+    \item $+$ für Addition modulo $2^{16}$ und
+    \item $<<<b$ bitweise Rotation um b-bits nach links.
+\end{itemize}
+
+\section{Hashfunktion}
+
+Zur Generation des in der Matrix zu verwendenden Schlüssels wird eine Hashfunktion verwendet.
+Sie muss nicht besonders sicher und unumkehrbare sein, da der Schlüsslestromgenerator und die Matrix diese Aufgabe bereits übernehmen.
+Der Zweck dieser ist statt dessen die Reduzierung, beziehungsweise Erweiterung, einer Passphrase auf die von der Matrix geforderten 128 Bits.
+Daher wird das simple Division-Rest-Verfahren\cite{Silies2021} angewendet.
+
+\begin{itemize}
+    \item Sei $s_0$ bis $s_{n-1}$ die ASCII-Repräsentation einer Passphrase der Länge $n$,
+    \item $h$ der zu generierende Hashwert und
+    \item $p = 2^{128}$ die Begrenzung des Hashwertes, die von der Matrix vorgegeben ist.
+\end{itemize}
+Es gilt:
+\begin{align*}
+    h = \left( s_0 \cdot 31^{n-1} + s_1 \cdot 31^{n-2} + ... + s_{n-2} \cdot 31 + s_{n-1}\right)\text{mod } p
+\end{align*}
+
+\section{Implementation}
+
+Das genannte Verfahren wird in Java implementiert.
+Im Folgenden werden auf Implementationsdetails eingegangen.
+
+\subsection{Hashfunktion}
+
+\subsection{Matrix}
+
+\subsection{Pseudozufallsgenerator}
+
+Der Generator wird in einer Methode, die den Seed als Parameter bekommt generiert..
+Es wird jeder letzte Wert von $x_i$, aus dem immer der nächste folgt, gespeichert. Dies ermöglicht es einen $n$ langen Blockschlüssel zu erzeugen.
 
 Gehe man davon aus, dass alle Werte $x_i$ den Schlüssel bilden. Sobald also ein Teil oder der ganze Schlüssel bekannt ist, sind ebenfalls die entsprechenden Werte aus der Menge der $x_i$ bekannt. Mit mathematischen Mittel können alle Parameter und damit auch der $seed$ gefunden werden.
 Um diesem Sicherheitsproblem zu entgehen, wird dem Schlüssel nur die rechte Bithälfte von jedem Wert $x_i$ zugeordnet.
-Der Generator arbeitet jedoch mit dem ganzen Werten von $x_i$ verborgen weiter. 
+Der Generator arbeitet jedoch mit dem ganzen Werten von $x_i$ verborgen weiter.
 Beispiel:
 \begin{align*}
     B_{x_i} = 1001 1111
@@ -117,116 +248,6 @@ Beispiel:
 \begin{align*}
     B_{x_s} = 0000 1001
 \end{align*}
-
-\section{Matrix}
-
-Zur Erzeugung des Seeds wird eine $4 \times 4$ Matrix verwendet, die aus folgenden Teilen besteht:
-\begin{itemize}
-    \item einer öffentlichen Konstante,
-    \item dem geheimen Schlüssel,
-    \item der öffentlichen Blocknummer und
-    \item einer ebenfalls öffentlichen Nonce.
-\end{itemize}
-Die Nonce ist eine \glqq \textbf{N}umber used \textbf{ONCE}\grqq{}, die pro Verschlüsselung neu gewählt werden muss.
-Hierdurch werden Replay-Angriffe praktisch unmöglich, da ein so ein kompromittierter Stromschlüssel nie erneut eingesetzt werden kann.
-
-Die öffentliche Konstante entspricht der ASCII-Repräsentation von
-\begin{quotation}
-    \glqq ILoveYou\grqq{}.
-\end{quotation}
-
-Die Elemente der Matrix sind 16-bit Wörter und sind im Ausgangszustand wie folgt angeordnet:
-
-\begin{center}
-    \begin{tabular}{ c c c c }
-        const      & const      & const & const \\
-        key        & key        & key   & key   \\
-        key        & key        & key   & key   \\
-        block\_num & block\_num & nonce & nonce \\
-    \end{tabular}
-\end{center}
-
-Diese Matrix durchläuft 30 Runden an Diffusion, wodurch eine geringfügige Änderung eines der Eingangswörter die gesamte Ausgangsmatrix beeinflusst.
-Hierdurch wird der Rückschluss auf die Eingangswörter mithilfe des generierten Seeds praktisch unmöglich.
-
-\subsection{Runden}
-
-Jede Runde besteht aus acht Rechenschritten.
-Für alle werden vier Wörter aus der Matrix ausgewählt und dem in \autoref{sec:Achtelrunde} beschriebenen Verfahren übergeben.
-Die Ausgaben dieser Berechnung ersetzten die entsprechenden Eingangswerte.
-
-Die Auswahl der vier Wörter ist vordefiniert, mit einer zeilenweisen Nummerierung der Wörter ergeben sich die folgenden Rechenschritte, die in zwei Teile unterteilt werden können und in der gelisteten Reihen folge ausgeführt werden:
-\begin{enumerate}
-    \item Spalten:
-          \begin{itemize}
-              \item Achtelrunde(00, 04, 08, 12)
-              \item Achtelrunde(01, 05, 09, 13)
-              \item Achtelrunde(02, 06, 10, 14)
-              \item Achtelrunde(03, 07, 11, 15)
-          \end{itemize}
-    \item Diagonalen:
-          \begin{itemize}
-              \item Achtelrunde(00, 05, 10, 15)
-              \item Achtelrunde(01, 06, 11, 12)
-              \item Achtelrunde(02, 07, 08, 13)
-              \item Achtelrunde(03, 04, 09, 14)
-          \end{itemize}
-\end{enumerate}
-
-\subsubsection{Achtelrunden}
-\label{sec:Achtelrunde}
-
-Jede Achtelrunde nimmt vier 2-bit Wörter ($a$ bis $d$) entgegen und produziert ebenfalls vier 2-bit Wörter.
-Das Ziel dieses Verfahren ist es, alle Eingangswörter derartig miteinander in Beziehung zu setzten, dass eine kleine Änderung eines Eingangswortes alle Ausganswörter stark beeinflusst.
-Hierzu werden die folgenden Berechnungen durchgeführt:
-
-\begin{align*}
-    a & +=       b \\
-    d & \wedge = b \\
-    d & <<<=     6 \\
-      &            \\
-    c & +=       c \\
-    b & \wedge = b \\
-    c & <<<=     6 \\
-      &            \\
-    a & +=       b \\
-    d & \wedge = b \\
-    d & <<<=     6 \\
-      &            \\
-    c & +=       d \\
-    b & \wedge = c \\
-    c & <<<=     6 \\
-\end{align*}
-
-Es wird die übliche Schreibweise der C Programmiersprache verwendet, die ebenfalls in \cite{Bernstein2008} eingesetzt wurde:
-$\wedge$ steht für XOR, $+$ für Addition modulo $2^{16}$ und $<<<b$ bitweise Rotation um b-bits nach links.
-
-\section{Hashfunktion}
-
-Zur Generation des Schlüssels wird eine Hashfunktion verwendet.
-Sie muss nicht besonders sicher und unumkehrbare sein, da die Matrix diese Aufgabe bereits übernimmt.
-Der Zweck dieser ist statt dessen die Reduzierung, beziehungsweise Erweiterung, einer Passphrase auf die von der Matrix geforderten 128 Bits.
-Daher wird das sehr simple Division-Rest-Verfahren angewendet.
-
-Sei $s_0$ bis $s_{n-1}$ die ASCII-Repräsentation einer Passphrase der Länge $n$, $h$ der zu generierende Hashwert und $p = 2^{128}$ die Begrenzung des Hashwertes, die von der Matrix vorgegeben ist.
-Es gilt:
-\begin{align*}
-    h = \left( s_0 \cdot 31^{n-1} + s_1 \cdot 31^{n-2} + ... + s_{n-2} \cdot 31 + s_{n-1}\right)\text{ mod } p
-\end{align*}
-
-\section{Implementation}
-
-Das genannte Verfahren wird in Java implementiert.
-Im Folgenden werden auf Implementationsdetails eingegangen.
-
-\subsection{Hashfunktion}
-
-\subsection{Matrix}
-
-\subsection{Pseudozufallsgenerator}
-
-Der Generator wird in einer Methode, die den Seed als Parameter bekommt generiert..
-Es wird jeder letzte Wert von $x_i$, aus dem immer der nächste folgt, gespeichert. Dies ermöglicht es einen $n$ langen Blockschlüssel zu erzeugen.
 
 \section{Analyse}
 

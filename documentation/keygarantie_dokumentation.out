@@ -1,18 +1,15 @@
-\BOOKMARK [1][-]{section.1}{\376\377\000A\000b\000s\000t\000r\000a\000c\000t}{}% 1
-\BOOKMARK [1][-]{section.2}{\376\377\000E\000i\000n\000l\000e\000i\000t\000u\000n\000g}{}% 2
-\BOOKMARK [1][-]{section.3}{\376\377\000P\000s\000e\000u\000d\000o\000z\000u\000f\000a\000l\000l\000s\000g\000e\000n\000e\000r\000a\000t\000o\000r}{}% 3
-\BOOKMARK [2][-]{subsection.3.1}{\376\377\000L\000i\000n\000e\000a\000r\000e\000r\000\040\000K\000o\000n\000g\000r\000u\000e\000n\000z\000g\000e\000n\000e\000r\000a\000t\000o\000r}{section.3}% 4
-\BOOKMARK [2][-]{subsection.3.2}{\376\377\000E\000n\000s\000t\000e\000h\000u\000n\000g\000\040\000d\000e\000s\000\040\000S\000c\000h\000l\000\374\000s\000s\000e\000l}{section.3}% 5
-\BOOKMARK [2][-]{subsection.3.3}{\376\377\000A\000b\000s\000c\000h\000e\000i\000n\000d\000e\000n\000\040\000d\000e\000r\000\040\000l\000i\000n\000k\000e\000n\000\040\000B\000i\000t\000h\000\344\000l\000f\000t\000e}{section.3}% 6
-\BOOKMARK [1][-]{section.4}{\376\377\000M\000a\000t\000r\000i\000x}{}% 7
-\BOOKMARK [2][-]{subsection.4.1}{\376\377\000R\000u\000n\000d\000e\000n}{section.4}% 8
-\BOOKMARK [3][-]{subsubsection.4.1.1}{\376\377\000A\000c\000h\000t\000e\000l\000r\000u\000n\000d\000e\000n}{subsection.4.1}% 9
-\BOOKMARK [1][-]{section.5}{\376\377\000H\000a\000s\000h\000f\000u\000n\000k\000t\000i\000o\000n}{}% 10
-\BOOKMARK [1][-]{section.6}{\376\377\000I\000m\000p\000l\000e\000m\000e\000n\000t\000a\000t\000i\000o\000n}{}% 11
-\BOOKMARK [2][-]{subsection.6.1}{\376\377\000H\000a\000s\000h\000f\000u\000n\000k\000t\000i\000o\000n}{section.6}% 12
-\BOOKMARK [2][-]{subsection.6.2}{\376\377\000M\000a\000t\000r\000i\000x}{section.6}% 13
-\BOOKMARK [2][-]{subsection.6.3}{\376\377\000P\000s\000e\000u\000d\000o\000z\000u\000f\000a\000l\000l\000s\000g\000e\000n\000e\000r\000a\000t\000o\000r}{section.6}% 14
-\BOOKMARK [1][-]{section.7}{\376\377\000A\000n\000a\000l\000y\000s\000e}{}% 15
-\BOOKMARK [1][-]{section.8}{\376\377\000B\000e\000i\000s\000p\000i\000e\000l\000e}{}% 16
-\BOOKMARK [1][-]{section.9}{\376\377\000Z\000u\000s\000a\000m\000m\000e\000n\000f\000a\000s\000s\000u\000n\000g}{}% 17
-\BOOKMARK [1][-]{section.10}{\376\377\000L\000i\000t\000e\000r\000a\000t\000u\000r}{}% 18
+\BOOKMARK [1][-]{section.1}{Abstract}{}% 1
+\BOOKMARK [1][-]{section.2}{Einleitung}{}% 2
+\BOOKMARK [1][-]{section.3}{Linearer Kongruenzgenerator}{}% 3
+\BOOKMARK [1][-]{section.4}{Matrix}{}% 4
+\BOOKMARK [2][-]{subsection.4.1}{Achtelrunden}{section.4}% 5
+\BOOKMARK [1][-]{section.5}{Hashfunktion}{}% 6
+\BOOKMARK [1][-]{section.6}{Implementation}{}% 7
+\BOOKMARK [2][-]{subsection.6.1}{Hashfunktion}{section.6}% 8
+\BOOKMARK [2][-]{subsection.6.2}{Matrix}{section.6}% 9
+\BOOKMARK [2][-]{subsection.6.3}{Pseudozufallsgenerator}{section.6}% 10
+\BOOKMARK [2][-]{subsection.6.4}{Abscheinden der linken Bith\344lfte}{section.6}% 11
+\BOOKMARK [1][-]{section.7}{Analyse}{}% 12
+\BOOKMARK [1][-]{section.8}{Beispiele}{}% 13
+\BOOKMARK [1][-]{section.9}{Zusammenfassung}{}% 14
+\BOOKMARK [1][-]{section.10}{Literatur}{}% 15

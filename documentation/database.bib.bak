@@ -27,10 +27,4 @@
   url          = {https://rfc-editor.org/rfc/rfc1149.txt},
 }
 
-@Unpublished{Silies2021,
-  author = {Silies Antje},
-  title  = {Implementieren von Hash-Funktionen},
-  year   = {2021},
-}
-
 @Comment{jabref-meta: databaseType:bibtex;}

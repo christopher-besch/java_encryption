@@ -1,5 +1,10 @@
 \begin{thebibliography}{Wai90}
 
+\bibitem[Ant21]{Silies2021}
+Silies Antje.
+\newblock Implementieren von hash-funktionen.
+\newblock 2021.
+
 \bibitem[J.08]{Bernstein2008}
 Bernstein~Daniel J.
 \newblock Chacha, a variant of salsa20.
