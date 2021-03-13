@@ -1,0 +1,193 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[german]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{tabularx}
+\usepackage{ltablex}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{subcaption}
+\usepackage{cite}
+\usepackage[nottoc,numbib]{tocbibind}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+\usepackage{sectsty}
+
+\author{Christopher Besch und Katharina Libner}
+\title{Keygarantie Verschlüsselungsverfahren}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Abstract}
+
+Keygarantie ist ein symmetrisches 128-bit Stromverschlüsselungsverfahren, das stark and ChaCha angelehnt ist\cite{Bernstein2008}.
+Damit basiert es auf XOR, was die Ver- und Entschlüsselung mit dem selben Algorithmus erlaubt.
+Für die Generation des mit XOR verwendeten Stromschlüssels wird ein komplexer Mechanismus aus praktisch äußerst schwer umkehrbaren Methoden verwendet, wodurch selbst bei kompromittiertem Klartext die verwendete Passphrase geheim bleibt.
+
+\section{Einleitung}
+
+Das Kernstück von Keygarantie bildet die XOR-Verschlüsselung, wobei ein Klartext mit einem Stromschlüssel bitweise verschlüsselt wird.
+Eine $1$ in dem Stromschlüssel dreht den gegenüberliegenden Bit im Klartext um, eine $0$ verändert ihn nicht.
+Wenn nun der so generierte Geheimtext das Verfahren mit dem selben Schlüssel erneut durchläuft, werden die umgedrehten Bits erneut verändert, wodurch der Klartext entsteht.
+Hierbei ergibt sich allerdings das Problem, dass davon auszugehen ist, dass Teile des Klartextes kompromittiert werden
+Ist dies der Fall, kann zusammen mit dem öffentlichen Geheimtext auf den verwendeten Stromschlüssel geschlossen werden, womit alle zukünftigen Transmissionen ebenfalls kompromittiert sind.
+
+\medskip
+Es muss also davon ausgegangen werden, dass unter Umständen der Stromschlüssel öffentlich bekannt ist.
+Daher ist sicherzustellen, dass ein bekannter Teil des Stromschlüssels praktisch nie erneut für die Verschlüsselung mit XOR verwendet wird.
+Um dies zu erreichen wird ein 128-bit Schlüssel über 30 Runden diffundiert.
+Dieses Verfahren generiert einen 256-bit Seed, der praktisch äußerst schwer zu reversieren ist.
+Hierdurch wird die geforderte Sicherheit garantiert.
+
+\medskip
+Der Seed wird anschließend in einem Pseudozufallsgenerator eingesetzt, um eine unendliche Menge an Bits für den Stromschlüssels zu generieren.
+Praktisch werden allerdings aus Sicherheitsgründen nur 512 Bits pro Seed verwendet.
+Daher muss der Klartext in 512-bit Blöcke unterteilt werden, die aufsteigend und eindeutig mit einer Blocknummer nummeriert und identifiziert werden.
+Hieraus folgt, dass für jeden einzelnen Block ein anderer Seed für den Pseudozufallsgenerator verwendet werden muss.
+
+\section{Die Matrix}
+
+Zur Erzeugung des Seeds wird eine $4 \times 4$ Matrix verwendet, die aus folgenden Teilen besteht:
+\begin{itemize}
+    \item einer öffentlichen Konstante,
+    \item dem geheimen Schlüssel,
+    \item der öffentlichen Blocknummer und
+    \item einer ebenfalls öffentlichen Nonce.
+\end{itemize}
+Die Nonce ist eine \glqq \textbf{N}umber used \textbf{ONCE}\grqq{}, die pro Verschlüsselung neu gewählt werden muss.
+Hierdurch werden Replay-Angriffe praktisch unmöglich, da ein so ein kompromittierter Stromschlüssel nie erneut eingesetzt werden kann.
+
+Die Elemente der Matrix sind 16-bit Wörter und sind im Ausgangszustand wie folgt angeordnet:
+
+\begin{center}
+    \begin{tabular}{ c c c c }
+        const      & const      & const & const \\
+        key        & key        & key   & key   \\
+        key        & key        & key   & key   \\
+        block\_num & block\_num & nonce & nonce \\
+    \end{tabular}
+\end{center}
+
+Diese Matrix durchläuft 30 Runden an Diffusion, wodurch eine geringfügige Änderung eines der Eingangswörter die gesamte Ausgangsmatrix beeinflusst.
+Hierdurch wird der Rückschluss auf die Eingangswörter mithilfe des generierten Seeds praktisch unmöglich.
+
+\subsection{Die Runden}
+
+\subsubsection{Achtelrunden}
+
+Jede Achtelrunde nimmt vier 2-bit Wörter ($a$ bis $d$) entgegen und produziert ebenfalls vier 2-bit Wörter.
+Das Ziel dieses Verfahren ist es, alle Eingangswörter derartig miteinander in Beziehung zu setzten, dass eine kleine Änderung eines Eingangswortes alle Ausganswörter stark beeinflusst.
+Hierzu werden die folgenden Berechnungen durchgeführt:
+
+\begin{align*}
+    a & +=       b \\
+    d & \wedge = b \\
+    d & <<<=     6 \\
+      &            \\
+    c & +=       c \\
+    b & \wedge = b \\
+    c & <<<=     6 \\
+      &            \\
+    a & +=       b \\
+    d & \wedge = b \\
+    d & <<<=     6 \\
+      &            \\
+    c & +=       d \\
+    b & \wedge = c \\
+    c & <<<=     6 \\
+\end{align*}
+
+Es wird die übliche Schreibweise der C Programmiersprache verwendet, die ebenfalls in \cite{Bernstein2008} eingesetzt wurde:
+$\wedge$ steht für XOR, $+$ für Addition modulo $2^{16}$ und $<<<b$ bitweise Rotation um b-bits nach links.
+
+\section{Pseudozufallsgenerator}
+
+Ziel ist es einen \glqq zufälligen\grqq{} Schlüssel zu erzeugen, der unendlich lang werden kann, um unbeschränkt große Bitanzahlen zu verschlüsseln.
+
+\subsection{Linearer Kongruenzgenerator}
+
+\begin{align*}
+    x_i=\left(\left( x_{i-1}\cdot a\right) +c\right) \text{mod } 2^n
+\end{align*}
+
+$x_i$ ist ein neuer „Zufallswert“, der dem Schlüssel zugeordnet wird.
+$x_{i-1}$ ist dementsprechend der vorherige Wert, der bestimmt wurde.
+Da jeder Wert aus der Menge aller $x_i$ erst durch einen vorherigen Wert entsteht, muss es einen Startwert geben: $x_0 = seed $.
+$n$ sei aus $ \mathbb{N} $ und markiert die Bitintervallgrenze in der $x_i$ liegt.
+Intervall: [0, $n$].
+$c$ sei aus  $ \mathbb{N}<2 $
+$n$ und dient als Summand.
+$a$ sei in $ \mathbb{N}< 2 $
+$n$ und dienst als Multiplikator.
+
+\subsection{Enstehung des Schlüssel}
+
+Natürlich erkennt man schnell, dass durch mehrere bekannten Werte aus der Menge der $x_i$ und ein wenig geschickte Mathematik alle Parameter und damit auch der $seed$ gefunden werden können.
+Um dem aus dem Weg zu gehen, wird dem Schlüssel nur die rechte Bithälfte von jedem Wert $x_i$ zugeordnet.
+Der Generator arbeitet jedoch mit dem ganzen Werten von $x_i$ weiter.
+Beispiel:
+\begin{align*}
+    B_{x_i} = 1001 1111
+\end{align*}
+\begin{align*}
+    B_{x_s} = 1111
+\end{align*}
+Der Schlüssel $s$ besteht demnach aus allen $x_s$, die aneinandergereiht werden.
+\begin{align*}
+    s = x_{s_1}, x_{s_2}, x_{s_3}, x_{s_4}, ...
+\end{align*}
+
+\subsection{Abscheinden der linken Bithälfte}
+
+Der Wert von $x_s$ entsteht durch eine Art Maske oder Folie, die über $x_i$ gelegt wird.
+Diese ist so aufgebaut, dass durch sie nur die rechte Bitseite von $x_i$ durchschimmert und $x_s$ zugeordnet wird.
+Im Programm wird mit dem Vergleichsinstrument \flqq and\frqq gearbeitet.
+Es werden die Bits von der Maske mit den der von $x_i$ verglichen.
+Wenn beide an der gleichen Stelle den gleichen Bitwert haben, wird dieser übernommen, ist dies nicht der Fall gilt für $x_s$ an der Stelle 0.
+Um nur die rechte Seite zu übernehmen, muss also eine gleichlange Bitmaske $m$ erzeugt werden, die von links bis zur Mitte aus Nullen und von der Mitte bis rechts aus Einsen besteht.
+Beispiel:
+\begin{align*}
+    B_{x_i} = 1111 1001SS
+\end{align*}
+\begin{align*}
+    B_{x_i} = 0000 1111
+\end{align*}
+\begin{align*}
+    B_{x_s} = 0000 1001
+\end{align*}
+
+\subsection{Pseudozufallsgenerator als Klasse}
+
+Der Generator wird als Klasse erzeugt.
+Als Eingabe bekommt er die Parameter $a$, $b$, $n$ und
+den $seed$.
+Der Vorteil an einer Klasse ist, dass jeder letzte Wert von $x_i$ gespeichert wird.
+Sodass
+man innerhalb der Klasse mit Hilfe einer Methode jeden nächsten Teilschlüssel $k_i$ mit der
+Bitanzahl $n$ erzeugen kann.
+Und die Möglichkeit besteht den zusammengesetzten Schlüssel $k$
+aus den Teilschlüsseln $k_i$ unbeschränkt lang zu wählen.
+
+\section{Analyse}
+
+\section{Beispiele}
+
+\section{Zusammenfassung}
+
+\bibliography{database}{}
+\bibliographystyle{alpha}
+
+\end{document}

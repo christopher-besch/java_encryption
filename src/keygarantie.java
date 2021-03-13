@@ -286,17 +286,20 @@ public class keygarantie {
 
     // calculate new values for a list of 4 shorts
     private static short[] calculate(short[] input_values) {
-        input_values[0] = (short) (input_values[0] + input_values[1]);
-        input_values[3] = (short) (input_values[3] ^ input_values[1]);
+        input_values[0] += input_values[1];
+        input_values[3] ^= input_values[1];
         input_values[3] = (short) Integer.rotateLeft((int) input_values[3], 6);
-        input_values[2] = (short) (input_values[2] + input_values[3]);
-        input_values[1] = (short) (input_values[1] ^ input_values[2]);
+
+        input_values[2] += input_values[3];
+        input_values[1] ^= input_values[2];
         input_values[2] = (short) Integer.rotateLeft((int) input_values[1], 12);
-        input_values[0] = (short) (input_values[0] + input_values[1]);
-        input_values[3] = (short) (input_values[3] ^ input_values[1]);
+
+        input_values[0] += input_values[1];
+        input_values[3] ^= input_values[1];
         input_values[3] = (short) Integer.rotateLeft((int) input_values[3], 8);
-        input_values[2] = (short) (input_values[2] + input_values[3]);
-        input_values[1] = (short) (input_values[1] ^ input_values[2]);
+
+        input_values[2] += input_values[3];
+        input_values[1] ^= input_values[2];
         input_values[2] = (short) Integer.rotateLeft((int) input_values[1], 7);
 
         return input_values;
