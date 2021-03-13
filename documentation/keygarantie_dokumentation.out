@@ -1,14 +1,18 @@
 \BOOKMARK [1][-]{section.1}{Abstract}{}% 1
 \BOOKMARK [1][-]{section.2}{Einleitung}{}% 2
-\BOOKMARK [1][-]{section.3}{Die Matrix}{}% 3
-\BOOKMARK [2][-]{subsection.3.1}{Die Runden}{section.3}% 4
-\BOOKMARK [3][-]{subsubsection.3.1.1}{Achtelrunden}{subsection.3.1}% 5
-\BOOKMARK [1][-]{section.4}{Pseudozufallsgenerator}{}% 6
-\BOOKMARK [2][-]{subsection.4.1}{Linearer Kongruenzgenerator}{section.4}% 7
-\BOOKMARK [2][-]{subsection.4.2}{Enstehung des Schl\374ssel}{section.4}% 8
-\BOOKMARK [2][-]{subsection.4.3}{Abscheinden der linken Bith\344lfte}{section.4}% 9
-\BOOKMARK [2][-]{subsection.4.4}{Pseudozufallsgenerator als Klasse}{section.4}% 10
-\BOOKMARK [1][-]{section.5}{Analyse}{}% 11
-\BOOKMARK [1][-]{section.6}{Beispiele}{}% 12
-\BOOKMARK [1][-]{section.7}{Zusammenfassung}{}% 13
-\BOOKMARK [1][-]{section.8}{Literatur}{}% 14
+\BOOKMARK [1][-]{section.3}{Pseudozufallsgenerator}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Linearer Kongruenzgenerator}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{Enstehung des Schl\374ssel}{section.3}% 5
+\BOOKMARK [2][-]{subsection.3.3}{Abscheinden der linken Bith\344lfte}{section.3}% 6
+\BOOKMARK [1][-]{section.4}{Matrix}{}% 7
+\BOOKMARK [2][-]{subsection.4.1}{Runden}{section.4}% 8
+\BOOKMARK [3][-]{subsubsection.4.1.1}{Achtelrunden}{subsection.4.1}% 9
+\BOOKMARK [1][-]{section.5}{Hashfunktion}{}% 10
+\BOOKMARK [1][-]{section.6}{Implementation}{}% 11
+\BOOKMARK [2][-]{subsection.6.1}{Hashfunktion}{section.6}% 12
+\BOOKMARK [2][-]{subsection.6.2}{Matrix}{section.6}% 13
+\BOOKMARK [2][-]{subsection.6.3}{Pseudozufallsgenerator}{section.6}% 14
+\BOOKMARK [1][-]{section.7}{Analyse}{}% 15
+\BOOKMARK [1][-]{section.8}{Beispiele}{}% 16
+\BOOKMARK [1][-]{section.9}{Zusammenfassung}{}% 17
+\BOOKMARK [1][-]{section.10}{Literatur}{}% 18

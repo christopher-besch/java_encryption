@@ -58,61 +58,6 @@ Praktisch werden allerdings aus Sicherheitsgründen nur 512 Bits pro Seed verwen
 Daher muss der Klartext in 512-bit Blöcke unterteilt werden, die aufsteigend und eindeutig mit einer Blocknummer nummeriert und identifiziert werden.
 Hieraus folgt, dass für jeden einzelnen Block ein anderer Seed für den Pseudozufallsgenerator verwendet werden muss.
 
-\section{Die Matrix}
-
-Zur Erzeugung des Seeds wird eine $4 \times 4$ Matrix verwendet, die aus folgenden Teilen besteht:
-\begin{itemize}
-    \item einer öffentlichen Konstante,
-    \item dem geheimen Schlüssel,
-    \item der öffentlichen Blocknummer und
-    \item einer ebenfalls öffentlichen Nonce.
-\end{itemize}
-Die Nonce ist eine \glqq \textbf{N}umber used \textbf{ONCE}\grqq{}, die pro Verschlüsselung neu gewählt werden muss.
-Hierdurch werden Replay-Angriffe praktisch unmöglich, da ein so ein kompromittierter Stromschlüssel nie erneut eingesetzt werden kann.
-
-Die Elemente der Matrix sind 16-bit Wörter und sind im Ausgangszustand wie folgt angeordnet:
-
-\begin{center}
-    \begin{tabular}{ c c c c }
-        const      & const      & const & const \\
-        key        & key        & key   & key   \\
-        key        & key        & key   & key   \\
-        block\_num & block\_num & nonce & nonce \\
-    \end{tabular}
-\end{center}
-
-Diese Matrix durchläuft 30 Runden an Diffusion, wodurch eine geringfügige Änderung eines der Eingangswörter die gesamte Ausgangsmatrix beeinflusst.
-Hierdurch wird der Rückschluss auf die Eingangswörter mithilfe des generierten Seeds praktisch unmöglich.
-
-\subsection{Die Runden}
-
-\subsubsection{Achtelrunden}
-
-Jede Achtelrunde nimmt vier 2-bit Wörter ($a$ bis $d$) entgegen und produziert ebenfalls vier 2-bit Wörter.
-Das Ziel dieses Verfahren ist es, alle Eingangswörter derartig miteinander in Beziehung zu setzten, dass eine kleine Änderung eines Eingangswortes alle Ausganswörter stark beeinflusst.
-Hierzu werden die folgenden Berechnungen durchgeführt:
-
-\begin{align*}
-    a & +=       b \\
-    d & \wedge = b \\
-    d & <<<=     6 \\
-      &            \\
-    c & +=       c \\
-    b & \wedge = b \\
-    c & <<<=     6 \\
-      &            \\
-    a & +=       b \\
-    d & \wedge = b \\
-    d & <<<=     6 \\
-      &            \\
-    c & +=       d \\
-    b & \wedge = c \\
-    c & <<<=     6 \\
-\end{align*}
-
-Es wird die übliche Schreibweise der C Programmiersprache verwendet, die ebenfalls in \cite{Bernstein2008} eingesetzt wurde:
-$\wedge$ steht für XOR, $+$ für Addition modulo $2^{16}$ und $<<<b$ bitweise Rotation um b-bits nach links.
-
 \section{Pseudozufallsgenerator}
 
 Ziel ist es einen \glqq zufälligen\grqq{} Schlüssel zu erzeugen, der unendlich lang werden kann, um unbeschränkt große Bitanzahlen zu verschlüsseln.
@@ -169,7 +114,112 @@ Beispiel:
     B_{x_s} = 0000 1001
 \end{align*}
 
-\subsection{Pseudozufallsgenerator als Klasse}
+\section{Matrix}
+
+Zur Erzeugung des Seeds wird eine $4 \times 4$ Matrix verwendet, die aus folgenden Teilen besteht:
+\begin{itemize}
+    \item einer öffentlichen Konstante,
+    \item dem geheimen Schlüssel,
+    \item der öffentlichen Blocknummer und
+    \item einer ebenfalls öffentlichen Nonce.
+\end{itemize}
+Die Nonce ist eine \glqq \textbf{N}umber used \textbf{ONCE}\grqq{}, die pro Verschlüsselung neu gewählt werden muss.
+Hierdurch werden Replay-Angriffe praktisch unmöglich, da ein so ein kompromittierter Stromschlüssel nie erneut eingesetzt werden kann.
+
+Die öffentliche Konstante entspricht der ASCII-Repräsentation von
+\begin{quotation}
+    \glqq ILoveYou\grqq{}.
+\end{quotation}
+
+Die Elemente der Matrix sind 16-bit Wörter und sind im Ausgangszustand wie folgt angeordnet:
+
+\begin{center}
+    \begin{tabular}{ c c c c }
+        const      & const      & const & const \\
+        key        & key        & key   & key   \\
+        key        & key        & key   & key   \\
+        block\_num & block\_num & nonce & nonce \\
+    \end{tabular}
+\end{center}
+
+Diese Matrix durchläuft 30 Runden an Diffusion, wodurch eine geringfügige Änderung eines der Eingangswörter die gesamte Ausgangsmatrix beeinflusst.
+Hierdurch wird der Rückschluss auf die Eingangswörter mithilfe des generierten Seeds praktisch unmöglich.
+
+\subsection{Runden}
+
+Jede Runde besteht aus acht Rechenschritten.
+Für alle werden vier Wörter aus der Matrix ausgewählt und dem in \autoref{sec:Achtelrunde} beschriebenen Verfahren übergeben.
+Die Ausgaben dieser Berechnung ersetzten die entsprechenden Eingangswerte.
+
+Die Auswahl der vier Wörter ist vordefiniert, mit einer zeilenweisen Nummerierung der Wörter ergeben sich die folgenden Rechenschritte, die in zwei Teile unterteilt werden können und in der gelisteten Reihen folge ausgeführt werden:
+\begin{enumerate}
+    \item Spalten:
+          \begin{itemize}
+              \item Achtelrunde(00, 04, 08, 12)
+              \item Achtelrunde(01, 05, 09, 13)
+              \item Achtelrunde(02, 06, 10, 14)
+              \item Achtelrunde(03, 07, 11, 15)
+          \end{itemize}
+    \item Diagonalen:
+          \begin{itemize}
+              \item Achtelrunde(00, 05, 10, 15)
+              \item Achtelrunde(01, 06, 11, 12)
+              \item Achtelrunde(02, 07, 08, 13)
+              \item Achtelrunde(03, 04, 09, 14)
+          \end{itemize}
+\end{enumerate}
+
+\subsubsection{Achtelrunden}
+\label{sec:Achtelrunde}
+
+Jede Achtelrunde nimmt vier 2-bit Wörter ($a$ bis $d$) entgegen und produziert ebenfalls vier 2-bit Wörter.
+Das Ziel dieses Verfahren ist es, alle Eingangswörter derartig miteinander in Beziehung zu setzten, dass eine kleine Änderung eines Eingangswortes alle Ausganswörter stark beeinflusst.
+Hierzu werden die folgenden Berechnungen durchgeführt:
+
+\begin{align*}
+    a & +=       b \\
+    d & \wedge = b \\
+    d & <<<=     6 \\
+      &            \\
+    c & +=       c \\
+    b & \wedge = b \\
+    c & <<<=     6 \\
+      &            \\
+    a & +=       b \\
+    d & \wedge = b \\
+    d & <<<=     6 \\
+      &            \\
+    c & +=       d \\
+    b & \wedge = c \\
+    c & <<<=     6 \\
+\end{align*}
+
+Es wird die übliche Schreibweise der C Programmiersprache verwendet, die ebenfalls in \cite{Bernstein2008} eingesetzt wurde:
+$\wedge$ steht für XOR, $+$ für Addition modulo $2^{16}$ und $<<<b$ bitweise Rotation um b-bits nach links.
+
+\section{Hashfunktion}
+
+Zur Generation des Schlüssels wird eine Hashfunktion verwendet.
+Sie muss nicht besonders sicher und unumkehrbare sein, da die Matrix diese Aufgabe bereits übernimmt.
+Der Zweck dieser ist statt dessen die Reduzierung, beziehungsweise Erweiterung, einer Passphrase auf die von der Matrix geforderten 128 Bits.
+Daher wird das sehr simple Division-Rest-Verfahren angewendet.
+
+Sei $s_0$ bis $s_{n-1}$ die ASCII-Repräsentation einer Passphrase der Länge $n$, $h$ der zu generierende Hashwert und $p = 2^{128}$ die Begrenzung des Hashwertes, die von der Matrix vorgegeben ist.
+Es gilt:
+\begin{align*}
+    h = \left( s_0 \cdot 31^{n-1} + s_1 \cdot 31^{n-2} + ... + s_{n-2} \cdot 31 + s_{n-1}\right)\text{ mod } p
+\end{align*}
+
+\section{Implementation}
+
+Das genannte Verfahren wird in Java implementiert.
+Im Folgenden werden auf Implementationsdetails eingegangen.
+
+\subsection{Hashfunktion}
+
+\subsection{Matrix}
+
+\subsection{Pseudozufallsgenerator}
 
 Der Generator wird als Klasse erzeugt.
 Als Eingabe bekommt er die Parameter $a$, $b$, $n$ und
@@ -186,6 +236,9 @@ aus den Teilschlüsseln $k_i$ unbeschränkt lang zu wählen.
 \section{Beispiele}
 
 \section{Zusammenfassung}
+
+Keygarantie ist ein experimentelles, nicht empfohlenes, Verschlüsselungsverfahren, das viele Aspekte von ChaCha übernimmt und abwandelt.
+Für die praktische Verwendung im Secure Socket Layer ist es nicht empfohlen, da weitreichende Kryptoanalyse noch nicht durchgeführt aber für dieses Anwendungsgebiet notwendige
 
 \bibliography{database}{}
 \bibliographystyle{alpha}
