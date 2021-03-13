@@ -33,30 +33,32 @@
 
 \section{Abstract}
 
-Keygarantie ist ein symmetrisches 128-bit Stromverschlüsselungsverfahren, das stark and ChaCha angelehnt ist\cite{Bernstein2008}.
+Keygarantie ist ein symmetrisches 128-bit Stromverschlüsselungsverfahren, das stark an ChaCha angelehnt ist\cite{Bernstein2008}.
 Damit basiert es auf XOR, was die Ver- und Entschlüsselung mit dem selben Algorithmus erlaubt.
-Für die Generation des mit XOR verwendeten Stromschlüssels wird ein komplexer Mechanismus aus praktisch äußerst schwer umkehrbaren Methoden verwendet, wodurch selbst bei kompromittiertem Klartext die verwendete Passphrase geheim bleibt.
+Für die Generation des mit XOR verwendeten Stromschlüssels wird ein komplexer und praktisch äußerst schwer umkehrbarer Mechanismus aus mehreren mathematischen Methoden verwendet, wodurch selbst bei kompromittiertem Klartext die verwendete Passphrase geheim bleibt.
 
 \section{Einleitung}
 
 Das Kernstück von Keygarantie bildet die XOR-Verschlüsselung, wobei ein Klartext mit einem Stromschlüssel bitweise verschlüsselt wird.
 Eine $1$ in dem Stromschlüssel dreht den gegenüberliegenden Bit im Klartext um, eine $0$ verändert ihn nicht.
-Wenn nun der so generierte Geheimtext das Verfahren mit dem selben Schlüssel erneut durchläuft, werden die umgedrehten Bits erneut verändert, wodurch der Klartext entsteht.
-Hierbei ergibt sich allerdings das Problem, dass davon auszugehen ist, dass Teile des Klartextes kompromittiert werden
-Ist dies der Fall, kann zusammen mit dem öffentlichen Geheimtext auf den verwendeten Stromschlüssel geschlossen werden, womit alle zukünftigen Transmissionen ebenfalls kompromittiert sind.
+Wenn nun der so generierte Geheimtext das Verfahren mit dem selben Schlüssel erneut durchläuft, werden die umgedrehten Bits erneut verändert, sodass wieder der Klartext entsteht.
+Allerdings ist davon auszugehen, dass Teile des Klartextes kompromittiert werden.
+Ist dies der Fall, kann zusammen mit dem öffentlichen Geheimtext auf den verwendeten Stromschlüssel geschlossen werden.
+Dadurch wären alle zukünftigen Transmissionen ebenfalls kompromittiert.
+Dies wäre fatal.
 
 \medskip
 Es muss also davon ausgegangen werden, dass unter Umständen der Stromschlüssel öffentlich bekannt ist.
 Daher ist sicherzustellen, dass ein bekannter Teil des Stromschlüssels praktisch nie erneut für die Verschlüsselung mit XOR verwendet wird.
 Um dies zu erreichen wird ein 128-bit Schlüssel über 30 Runden diffundiert.
-Dieses Verfahren generiert einen 256-bit Seed, der praktisch äußerst schwer zu reversieren ist.
-Hierdurch wird die geforderte Sicherheit garantiert.
+Dieses Verfahren generiert einen 256-bit Seed.
 
 \medskip
 Der Seed wird anschließend in einem Pseudozufallsgenerator eingesetzt, um eine unendliche Menge an Bits für den Stromschlüssels zu generieren.
-Praktisch werden allerdings aus Sicherheitsgründen nur 512 Bits pro Seed verwendet.
+Praktisch werden allerdings aus Sicherheitsgründen nur 512 Bits pro Seed verwendet, wodurch weniger Information für einen Angriff vorhanden sind.
 Daher muss der Klartext in 512-bit Blöcke unterteilt werden, die aufsteigend und eindeutig mit einer Blocknummer nummeriert und identifiziert werden.
 Hieraus folgt, dass für jeden einzelnen Block ein anderer Seed für den Pseudozufallsgenerator verwendet werden muss.
+Durch diesen Schritt, der praktisch mit modernen Methoden unumkehrbar ist, wird die geforderte Sicherheit garantiert.
 
 \section{Pseudozufallsgenerator}
 
