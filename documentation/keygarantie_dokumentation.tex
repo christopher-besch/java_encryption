@@ -56,7 +56,8 @@ Dieses Verfahren generiert einen 256-bit Seed.
 \medskip
 Der Seed wird anschließend in einem Pseudozufallsgenerator eingesetzt, um eine unendliche Menge an Bits für den Stromschlüssels zu generieren.
 Praktisch werden allerdings aus Sicherheitsgründen nur 512 Bits pro Seed verwendet, wodurch weniger Information für einen Angriff vorhanden sind.
-Daher muss der Klartext in 512-bit Blöcke unterteilt werden, die aufsteigend und eindeutig mit einer Blocknummer nummeriert und identifiziert werden.
+Diese 512 Bits bilden einen Blockschlüssel.
+Daher muss der Klartext in 512-bit Blöcke unterteilt werden, die aufsteigend und eindeutig mit einer Blocknummer nummeriert werden.
 Hieraus folgt, dass für jeden einzelnen Block ein anderer Seed für den Pseudozufallsgenerator verwendet werden muss.
 Durch diesen Schritt, der mit modernen Methoden praktisch unumkehrbar ist, wird die geforderte Sicherheit garantiert.
 
@@ -213,8 +214,9 @@ Im Folgenden werden auf Implementationsdetails eingegangen.
 
 \subsection{Pseudozufallsgenerator}
 
-Der Generator wird in einer Methode, die den Seed als Parameter bekommt generiert..
-Es wird jeder letzte Wert von $x_i$, aus dem immer der nächste folgt, gespeichert. Dies ermöglicht es einen $n$ langen Blockschlüssel zu erzeugen.
+Der Generator wird in einer Methode, die den Seed als Parameter entgegennimmt implementiert.
+Es wird jeder letzte Wert von $x_i$, aus dem immer der nächste folgt, gespeichert.
+Dies ermöglicht es einen 512-bit Blockschlüssel zu erzeugen.
 
 Gehe man davon aus, dass alle Werte $x_i$ den Schlüssel bilden. Sobald also ein Teil oder der ganze Schlüssel bekannt ist, sind ebenfalls die entsprechenden Werte aus der Menge der $x_i$ bekannt. Mit mathematischen Mittel können alle Parameter und damit auch der $seed$ gefunden werden.
 Um diesem Sicherheitsproblem zu entgehen, wird dem Schlüssel nur die rechte Bithälfte von jedem Wert $x_i$ zugeordnet.
