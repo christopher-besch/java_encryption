@@ -208,9 +208,37 @@ Es gilt:
 Das genannte Verfahren wird in Java implementiert.
 Im Folgenden werden auf Implementationsdetails eingegangen.
 
+Alle Algorithmen wurden funktional implementiert.
+
+Die Eingabedatei wird ausgelesen und in Blöcke unterteilt.
+Dabei beträgt die Größe dieser 512 Bits.
+Andere Größen sind ebenfalls möglich.
+Allerdings muss eine Ballance zwischen
+\begin{itemize}
+    \item einer hohen kryptographischen Sicherheit bei vielen, kleineren Blöcken und
+    \item einer geringen Laufzeit bei wenigeren, größeren Blöcken.
+\end{itemize}
+
+Diese Variable Blockgröße ergibt sich aus der theoretisch unbegrenzten Länge der Blockschlüssel.
+Zuerst wird die eingegebene Passphrase in einen 128-bit Hashwert konvertiert.
+
 \subsection{Hashfunktion}
 
+Hierzu wird das genannte Division-Rest-Verfahren in der Funktion \textit{division\_hash} rekursiv implementiert.
+Es werden immer Substrings der Eingabe gebildet.
+Diese unterscheiden sich zu der originalen Eingabe durch die Entfernung des letzten Buchstabens.
+Die Funktion wird erneut mit diesem Substring ausgeführt.
+Der Rekursionsanker wird getroffen, wenn die Länge der Eingabe $1$ erreicht.
+
 \subsection{Matrix}
+
+Als Repräsentation der 16-bit Wörter werden shorts verwendet, die die Matrix, ein zweidimensionales Array, füllen.
+Es werden die folgenden Funktionen genutzt:
+\begin{itemize}
+    \item \textit{generate\_seed}
+    \item \textit{}
+    \item \textit{}
+\end{itemize}
 
 \subsection{Pseudozufallsgenerator}
 

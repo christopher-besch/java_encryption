@@ -9,7 +9,7 @@
 \contentsline {subsection}{\numberline {6.1}Hashfunktion}{6}{subsection.6.1}%
 \contentsline {subsection}{\numberline {6.2}Matrix}{6}{subsection.6.2}%
 \contentsline {subsection}{\numberline {6.3}Pseudozufallsgenerator}{6}{subsection.6.3}%
-\contentsline {subsection}{\numberline {6.4}Abscheinden der linken Bithälfte}{6}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.4}Abscheinden der linken Bithälfte}{7}{subsection.6.4}%
 \contentsline {section}{\numberline {7}Analyse}{7}{section.7}%
 \contentsline {section}{\numberline {8}Beispiele}{7}{section.8}%
 \contentsline {section}{\numberline {9}Zusammenfassung}{7}{section.9}%

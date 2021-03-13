@@ -8,18 +8,40 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class keygarantie {
+    static Random random_generator = new Random();
+
+    public static void terminate_program(String message) {
+        System.err.println("keygarantie: " + message);
+        System.err.println("Try 'java keygarantie --help' for more information.");
+        System.exit(1);
+    }
+
+    // create bit mask, left half 0s, right half 1s
+    private static BigInteger get_mask(int length) {
+        int middle = (int) length / 2;
+        return power_base_2(middle).subtract(BigInteger.valueOf(1));
+    }
+
+    private static BigInteger power_base_2(int expo) {
+        return BigInteger.valueOf(1).shiftLeft(expo);
+    }
+
     public static void main(String args[]) {
-        // read console arguments
         String input_files[];
         String output_file_or_folder;
+
         boolean random_nonce = false;
         BigInteger nonce = BigInteger.valueOf(0);
-        String passphrase = "";
-        boolean passphrase_missing = true;
         boolean nonce_missing = true;
 
-        int idx = 0;
+        String passphrase = "";
+        boolean passphrase_missing = true;
 
+        ////////////////////////////
+        // read console arguments //
+        ////////////////////////////
+
+        int idx = 0;
         for (; idx < args.length; idx++) {
             if (args[idx].charAt(0) == '-') {
                 switch (args[idx]) {
@@ -28,8 +50,10 @@ public class keygarantie {
                     System.out.println("  or:  java keygarantie [OPTION]... [SOURCE]... [DIRECTORY]");
                     System.out.println("Encrypt SOURCE into DEST, or multiple SOURCE(s) into DIRECTORY.");
                     System.out.println();
-                    System.out.println("-r\t\tcreate, use and output random nonce instead of user defined nonce");
-                    System.out.println("-p [PASSPHRASE]\tuse this passphrase for the encryption");
+                    System.out.println(
+                            "-r\t\tcreate, use and output random nonce for each input file instead of user defined nonce");
+                    System.out.println(
+                            "-p [PASSPHRASE]\tuse this passphrase for every file (not recommended for multiple files)");
                     System.out.println(
                             "-n [NONCE]\tuse this nonce for the encryption (will be overwritten by -r option)");
                     System.exit(0);
@@ -38,65 +62,51 @@ public class keygarantie {
                     nonce_missing = false;
                     break;
                 case "-p":
-                    if (idx == args.length) {
-                        System.err.println("keygarantie: -p requires passphrase");
-                        System.err.println("Try 'java keygarantie --help' for more information.");
-                        System.exit(1);
-                    }
+                    if (idx == args.length)
+                        terminate_program("-p requires passphrase");
                     idx++;
                     passphrase = args[idx];
                     passphrase_missing = false;
                     break;
                 case "-n":
-                    if (idx == args.length) {
-                        System.err.println("keygarantie: -n requires nonce");
-                        System.err.println("Try 'java keygarantie --help' for more information.");
-                        System.exit(1);
-                    }
+                    if (idx == args.length)
+                        terminate_program("-n requires nonce");
                     idx++;
+                    // can be converted to number?
                     try {
                         nonce = new BigInteger(args[idx]);
                     } catch (NumberFormatException e) {
-                        System.err.println("keygarantie: -n requires a numeric value as nonce");
-                        System.err.println("Try 'java keygarantie --help' for more information.");
-                        System.exit(1);
+                        terminate_program("-n requires a numeric value as nonce");
                     }
                     nonce_missing = false;
                     break;
                 default:
-                    System.err.println("keygarantie: unrecognized option '" + args[idx] + "'");
-                    System.err.println("Try 'java keygarantie --help' for more information.");
-                    System.exit(1);
+                    terminate_program("unrecognized option '" + args[idx] + "'");
                 }
             } else
                 break;
         }
 
-        if (nonce_missing || passphrase_missing) {
-            System.err.println("keygarantie: passphrase and/or nonce missing");
-            System.err.println("Try 'java keygarantie --help' for more information.");
-            System.exit(1);
-        }
-
-        if (random_nonce) {
-            Random r = new Random();
-            nonce = BigInteger.valueOf(r.nextInt());
-            System.out.println("Nonce: " + nonce);
-        }
+        if (nonce_missing || passphrase_missing)
+            terminate_program("passphrase and/or nonce missing");
 
         // are there enough paths given?
-        if (idx + 2 > args.length) {
-            System.err.println("keygarantie: missing file operand");
-            System.err.println("Try 'java keygarantie --help' for more information.");
-            System.exit(1);
-        }
+        if (idx + 2 > args.length)
+            terminate_program("missing file operand");
         input_files = Arrays.copyOfRange(args, idx, args.length - 1);
         output_file_or_folder = args[args.length - 1];
 
+        // catch any unexpected errors
         try {
-            // encrypt file
+            //////////////////
+            // encrypt file //
+            //////////////////
+
             if (input_files.length == 1) {
-                System.out.println("encrypting " + input_files[0] + "...");
+                // create nonce if required
+                if (random_nonce)
+                    nonce = BigInteger.valueOf(random_generator.nextInt());
+                System.out.println("encrypting '" + input_files[0] + "' with nonce " + nonce + "...");
                 encrypt_file(input_files[0], output_file_or_folder, passphrase, nonce);
             } else {
                 // create output folder
@@ -104,9 +114,13 @@ public class keygarantie {
                 if (!out_directory.exists())
                     out_directory.mkdir();
 
-                // encrypt files
+                // go over all input files
                 for (int file_idx = 0; file_idx < input_files.length; file_idx++) {
-                    System.out.println("encrypting " + input_files[file_idx] + "...");
+                    // create nonce if required
+                    if (random_nonce)
+                        nonce = BigInteger.valueOf(random_generator.nextInt());
+
+                    System.out.println("encrypting '" + input_files[file_idx] + "' with nonce " + nonce + "...");
                     String[] input_path_split = input_files[file_idx].split("/");
                     String out_path = output_file_or_folder + "/" + input_path_split[input_path_split.length - 1];
                     encrypt_file(input_files[file_idx], out_path, passphrase, nonce);
@@ -119,49 +133,53 @@ public class keygarantie {
         System.out.println("All done, enjoy!");
     }
 
-    private static void encrypt_file(String in_file, String out_file, String input_passphrase, BigInteger nonce) {
-        File input_file = new File(in_file);
-
-        FileInputStream file_input_stream = null;
-        byte[] bytes = new byte[(int) input_file.length()];
+    private static void encrypt_file(String in_file_name, String out_file_name, String input_passphrase,
+            BigInteger nonce) {
+        // read input file
+        byte[] bytes = {};
         try {
-            file_input_stream = new FileInputStream(input_file);
+            File input_file = new File(in_file_name);
+            bytes = new byte[(int) input_file.length()];
+            FileInputStream file_input_stream = new FileInputStream(input_file);
             file_input_stream.read(bytes);
             file_input_stream.close();
         } catch (Exception e) {
-            System.out.println("can't read file '" + input_file + "'");
-            System.err.println("Try 'java keygarantie --help' for more information.");
-            System.exit(1);
+            terminate_program("can't read file '" + in_file_name + "'");
         }
 
+        // convert into 128-bit passphrase
         BigInteger passphrase = division_hash(input_passphrase);
 
+        // cut input into 512-bit blocks and encrypt each on their own
         BigInteger current_block_number = BigInteger.valueOf(0);
         byte[] current_block_key = new byte[64];
-        int current_block_key_idx = 64;
+        int current_block_byte_idx = 64;
         for (int idx = 0; idx < bytes.length; idx++) {
-            if (current_block_key_idx == 64) {
+            // create new block key if old block is done
+            if (current_block_byte_idx == 64) {
                 current_block_key = get_block_key(generate_seed(passphrase, current_block_number, nonce)).toByteArray();
                 current_block_number.add(BigInteger.valueOf(1));
-                current_block_key_idx = 0;
+                current_block_byte_idx = 0;
             }
 
-            bytes[idx] = (byte) (bytes[idx] ^ current_block_key[current_block_key_idx]);
-            current_block_key_idx++;
+            // perform main xor en-/decryption
+            bytes[idx] ^= current_block_key[current_block_byte_idx];
+            current_block_byte_idx++;
         }
 
-        File output_file = new File(out_file);
+        // write output file
         try {
+            File output_file = new File(out_file_name);
             FileOutputStream output_stream = new FileOutputStream(output_file);
             output_stream.write(bytes);
             output_stream.close();
         } catch (Exception e) {
-            System.out.println("can't write to output file '" + output_file + "'");
-            System.err.println("Try 'java keygarantie --help' for more information.");
-            System.exit(1);
+            terminate_program("can't write to output file '" + out_file_name + "'");
         }
     }
 
+    // recursive function
+    // convert input_passphrase into 128-bit passphrase
     private static BigInteger division_hash(String str) {
         // bounds checking
         if (str.length() == 0)
@@ -178,25 +196,15 @@ public class keygarantie {
 
     private static BigInteger generate_seed(BigInteger passphrase, BigInteger block_num, BigInteger nonce) {
         short[][] matrix = fill_matrix(passphrase, block_num, nonce);
-        transpose(matrix);
-        return convert_to_big_int(matrix);
-    }
+        do_rounds(matrix);
 
-    private static int fill(byte[] list, byte[] input, int start_idx, int length) {
-        for (int idx = 0; idx < length; idx++) {
-            if (idx >= input.length)
-                list[start_idx + idx] = 0;
-            else
-                list[start_idx + idx] = input[idx];
-        }
-        return start_idx + length;
-    }
-
-    private static BigInteger convert_to_big_int(short[][] matrix) {
+        // convert to byte array
         byte[] list = new byte[matrix.length * matrix[0].length * 2];
         int idx = 0;
+        // read row by row
         for (int x = 0; x < matrix.length; x++) {
             for (int y = 0; y < matrix[x].length; y++) {
+                // convert one short into two bytes
                 list[idx] = (byte) (matrix[x][y] >> 0);
                 idx++;
                 list[idx] = (byte) (matrix[x][y] >> 8);
@@ -206,6 +214,7 @@ public class keygarantie {
         return new BigInteger(list);
     }
 
+    // fill 4x4 matrix with shorts
     private static short[][] fill_matrix(BigInteger passphrase, BigInteger block_num, BigInteger nonce) {
         // sizes in bytes
         int const_size = 8;
@@ -218,6 +227,7 @@ public class keygarantie {
         byte[] block_num_bytes = block_num.toByteArray();
         byte[] nonce_bytes = nonce.toByteArray();
 
+        // create and fill list
         byte[] list = new byte[passphrase_size + block_num_size + const_size + nonce_size];
         int last_idx = 0;
         last_idx = fill(list, const_bytes, last_idx, const_size);
@@ -225,13 +235,13 @@ public class keygarantie {
         last_idx = fill(list, block_num_bytes, last_idx, block_num_size);
         last_idx = fill(list, nonce_bytes, last_idx, nonce_size);
 
-        // should be calculated
         short[][] matrix = new short[4][4];
 
-        // pour list into 2d array of shorts
+        // pour list into matrix of shorts
         int idx = 0;
         for (int x = 0; x < matrix.length; x++) {
             for (int y = 0; y < matrix[x].length; y++) {
+                // convert 2 bytes into 1 short
                 ByteBuffer buffer = ByteBuffer.allocate(2);
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
                 buffer.put(list[idx]);
@@ -241,42 +251,54 @@ public class keygarantie {
                 matrix[x][y] = buffer.getShort(0);
             }
         }
-
         return matrix;
     }
 
-    private static void transpose(short[][] matrix) {
+    // copy elements from [input] into [list] starting at [start_idx] inside list
+    // if fewer than [length] elements are present in [input], a padding out of 0s
+    // will be used
+    private static int fill(byte[] list, byte[] input, int start_idx, int length) {
+        for (int idx = 0; idx < length; idx++) {
+            if (idx >= input.length)
+                // padding
+                list[start_idx + idx] = 0;
+            else
+                list[start_idx + idx] = input[idx];
+        }
+        // return new last filled index inside list
+        return start_idx + length;
+    }
+
+    private static void do_rounds(short[][] matrix) {
         short[] input_values = new short[matrix[0].length];
 
         // 30 rounds
         for (int n = 0; n < 30; n++) {
-            // rows
-            for (int y = 0; y < matrix[0].length; y++) {
-                for (int x = 0; x < matrix.length; x++) {
-                    input_values[x] = matrix[x][y];
+            // columns
+            for (int x = 0; x < matrix[0].length; x++) {
+                // fill array from matrix
+                for (int y = 0; y < matrix.length; y++) {
+                    input_values[y] = matrix[x][y];
                 }
-                short[] output_values = calculate(input_values);
-                for (int x = 0; x < matrix.length; x++) {
-                    matrix[x][y] = output_values[x];
+                short[] output_values = quaver_round(input_values);
+                // write array to matrix
+                for (int y = 0; y < matrix.length; y++) {
+                    matrix[x][y] = output_values[y];
                 }
             }
-
-            // a b c d
-            // e f g h
-            // i j k l
-            // m n o p
 
             // diagonals
             // x-offset changes with each set of values
             for (int x = 0; x < matrix.length; x++) {
-                // put values in diagonal in list
-                // go one up and one to the left, starting at the offset for each new value
+                // fill array from matrix
+                // go one down and one to the left, starting at the offset for each new value
                 for (int idx = 0; idx < input_values.length; idx++) {
                     input_values[idx] = matrix[(x + idx) % matrix.length][idx];
                 }
 
-                // calculate new values and fill matrix
-                short[] output_values = calculate(input_values);
+                // calculate new values
+                short[] output_values = quaver_round(input_values);
+                // write array to matrix
                 for (int idx = 0; idx < input_values.length; idx++) {
                     matrix[(x + idx) % matrix.length][idx] = output_values[idx];
                 }
@@ -285,7 +307,7 @@ public class keygarantie {
     }
 
     // calculate new values for a list of 4 shorts
-    private static short[] calculate(short[] input_values) {
+    private static short[] quaver_round(short[] input_values) {
         input_values[0] += input_values[1];
         input_values[3] ^= input_values[1];
         input_values[3] = (short) Integer.rotateLeft((int) input_values[3], 6);
@@ -305,51 +327,27 @@ public class keygarantie {
         return input_values;
     }
 
-    // creates block key with n bits depending on seed
+    // create 512-bit block key defined by seed
     private static BigInteger get_block_key(BigInteger seed) {
-        BigInteger x = seed;
-        int key_length = 512;
+        // current value
+        BigInteger x_i = seed;
         BigInteger block_key = BigInteger.valueOf(0);
+
         int current_key_length = 0;
-        while (current_key_length < key_length)// until bit length bigger or equal to n
-        {
+        while (current_key_length < 512) {
             // linear congruence generator
-            x = x.multiply(BigInteger.valueOf(134775813)).add(BigInteger.valueOf(1)).mod(power_base_2(64));
-            int x_length = x.bitLength();
-            // mask of same length
-            BigInteger mask = get_mask(x_length);
-            // mask overlaps x values
-            // example:
-            // x :10100011
-            // mask :00001111
-            // right:00000011
-            BigInteger right = x.and(mask);
-            int r_length = right.bitLength();
-            // right is appended to key
-            // How: previous key is shifted by the bits of right(2^r_length)and afterwards
-            // right is add to it
-            block_key = block_key.multiply(power_base_2(r_length)).add(right);
+            x_i = x_i.multiply(BigInteger.valueOf(134775813)).add(BigInteger.valueOf(1)).mod(power_base_2(64));
+
+            // remove left half
+            BigInteger mask = get_mask(x_i.bitLength());
+            BigInteger right = x_i.and(mask);
+            // right is appended to current block key
+            // How: x_i gets shifted by the bits of right
+            block_key = block_key.multiply(power_base_2(right.bitLength())).add(right);
             current_key_length += right.bitLength();
         }
-        // key is cut to n bits
-        return block_key.divide(power_base_2(current_key_length - (key_length)));
+        // key is cut to 512 bits
+        return block_key.divide(power_base_2(current_key_length - (512)));
     }
 
-    // create a mask, exists consists of zeros bits from left to middle and from
-    // middle to consists of ones
-    private static BigInteger get_mask(int length) {
-        // example :
-        // input : length: 8
-        // mask : 00001111
-        int middle = (int) length / 2;
-        BigInteger mask = power_base_2(middle).subtract(BigInteger.valueOf(1));
-        return mask;
-    }
-
-    // returns a power, input as exponent to base 2
-    private static BigInteger power_base_2(int expo) {
-        // example: input: expo= 4
-        // 00001 -> 10000
-        return BigInteger.valueOf(1).shiftLeft(expo);
-    }
 }

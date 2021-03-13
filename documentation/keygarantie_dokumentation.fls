@@ -189,6 +189,7 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm0700.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm0500.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx1200.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecti1000.tfm
 INPUT /home/chris/files/java/encryption/documentation/keygarantie_dokumentation.bbl
 INPUT /home/chris/files/java/encryption/documentation/keygarantie_dokumentation.bbl
 INPUT /home/chris/files/java/encryption/documentation/keygarantie_dokumentation.aux
@@ -212,3 +213,4 @@ INPUT /usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb
 INPUT /usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb
 INPUT /usr/share/texmf/fonts/type1/public/cm-super/sfrm1200.pfb
 INPUT /usr/share/texmf/fonts/type1/public/cm-super/sfrm1728.pfb
+INPUT /usr/share/texmf/fonts/type1/public/cm-super/sfti1000.pfb
