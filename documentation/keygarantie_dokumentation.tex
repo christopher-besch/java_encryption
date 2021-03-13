@@ -37,15 +37,23 @@ Keygarantie ist ein symmetrisches 128-bit Stromverschlüsselungsverfahren, das s
 Damit basiert es auf XOR, was die Ver- und Entschlüsselung mit dem selben Algorithmus erlaubt.
 Für die Generation des mit XOR verwendeten Stromschlüssels wird ein komplexer und praktisch äußerst schwer umkehrbarer Mechanismus aus mehreren mathematischen Methoden verwendet, wodurch selbst bei kompromittiertem Klartext die verwendete Passphrase geheim bleibt.
 
-\section{Einleitung}
+\section{Übersicht}
 
 Das Kernstück von Keygarantie bildet die XOR-Verschlüsselung, wobei ein Klartext mit einem Stromschlüssel bitweise verschlüsselt wird.
 Eine $1$ in dem Stromschlüssel dreht den gegenüberliegenden Bit im Klartext um, eine $0$ verändert ihn nicht.
 Wenn nun der so generierte Geheimtext das Verfahren mit dem selben Schlüssel erneut durchläuft, werden die umgedrehten Bits erneut verändert, sodass wieder der Klartext entsteht.
+Dadurch kann zur Ver- und Entschlüsselung der gleiche Algorithmus verwendet werden.
+
 Allerdings ist davon auszugehen, dass Teile des Klartextes kompromittiert werden.
 Ist dies der Fall, kann zusammen mit dem öffentlichen Geheimtext auf den verwendeten Stromschlüssel geschlossen werden.
 Dadurch wären alle zukünftigen Transmissionen ebenfalls kompromittiert.
 Dies wäre fatal.
+
+Hierbei ist der Vorteil, dass Bits und beispielsweise keine Buchstaben oder Zahlen verschlüsselt werden.
+Daher können jegliche Dateien ver- und entschlüsselt werden.
+Bei Aes muss der gesamte Input erst in den Speicher geladen werden\cite{Pitchaiah2012}.
+Dies ist bei Keygarantie durch die Stromverschlüsselung nicht notwendig.
+Hierdurch können beispielsweise Videostreams on-the-fly ver- und entschlüsselt werden.
 
 \medskip
 Es muss also davon ausgegangen werden, dass unter Umständen der Stromschlüssel öffentlich bekannt ist.
@@ -60,6 +68,9 @@ Diese 512 Bits bilden einen Blockschlüssel.
 Daher muss der Klartext in 512-bit Blöcke unterteilt werden, die aufsteigend und eindeutig mit einer Blocknummer nummeriert werden.
 Hieraus folgt, dass für jeden einzelnen Block ein anderer Seed für den Pseudozufallsgenerator verwendet werden muss.
 Durch diesen Schritt, der mit modernen Methoden praktisch unumkehrbar ist, wird die geforderte Sicherheit garantiert.
+
+Durch die genannte Einteilung in Blöcke ergibt sich ein weiterer Vorteil:
+Es kann zu einer bestimmten Stelle innerhalb des Stream gesprungen werden, ohne erst alle vorherigen Blöcke ver- oder entschlüsseln zu müssen.
 
 \section{Linearer Kongruenzgenerator}
 
@@ -188,9 +199,10 @@ Es wird die übliche Schreibweise der C Programmiersprache verwendet.
 
 \section{Hashfunktion}
 
-Zur Generation des in der Matrix zu verwendenden Schlüssels wird eine Hashfunktion verwendet.
+Zur Generierung des in der Matrix verwendeten Schlüssels wird eine Hashfunktion verwendet.
 Sie muss nicht besonders sicher und unumkehrbare sein, da der Schlüsslestromgenerator und die Matrix diese Aufgabe bereits übernehmen.
-Der Zweck dieser ist statt dessen die Reduzierung, beziehungsweise Erweiterung, einer Passphrase auf die von der Matrix geforderten 128 Bits.
+Der Zweck dieser ist statt dessen die Reduzierung---beziehungsweise Erweiterung---einer Passphrase auf die von der Matrix geforderten 128 Bits.
+Jegliche ASCII-Buchstaben können so für die Passphrase verwendet werden.
 Daher wird das simple Division-Rest-Verfahren\cite{Silies2021} angewendet.
 
 \begin{itemize}
@@ -203,12 +215,9 @@ Es gilt:
     h = \left( s_0 \cdot 31^{n-1} + s_1 \cdot 31^{n-2} + ... + s_{n-2} \cdot 31 + s_{n-1}\right)\text{mod } p
 \end{align*}
 
-\section{Implementation}
+\section{Implementation und Beispiele}
 
 Das genannte Verfahren wird in Java implementiert.
-Im Folgenden werden auf Implementationsdetails eingegangen.
-
-Alle Algorithmen wurden funktional implementiert.
 
 Die Eingabedatei wird ausgelesen und in Blöcke unterteilt.
 Dabei beträgt die Größe dieser 512 Bits.
@@ -222,66 +231,16 @@ Allerdings muss eine Ballance zwischen
 Diese Variable Blockgröße ergibt sich aus der theoretisch unbegrenzten Länge der Blockschlüssel.
 Zuerst wird die eingegebene Passphrase in einen 128-bit Hashwert konvertiert.
 
-\subsection{Hashfunktion}
+Das Programm liefert die Option, die Nonce zufällig selbst zu generieren.
+Zudem erlaubt es die aneinanderfolgende Ver- und Entschlüsselung mehrere Dateien.
+Wenn hierzu die Nonce vom Nutzer gewählt wird, wird für alle Dateien die Gleiche verwendet.
+Dies ist ein Sicherheitsrisiko, da so ein Angreifer, der eine dieser Dateien entschlüsselt hat, alle anderen Dateien ebenfalls entschlüsseln kann.
 
-Hierzu wird das genannte Division-Rest-Verfahren in der Funktion \textit{division\_hash} rekursiv implementiert.
-Es werden immer Substrings der Eingabe gebildet.
-Diese unterscheiden sich zu der originalen Eingabe durch die Entfernung des letzten Buchstabens.
-Die Funktion wird erneut mit diesem Substring ausgeführt.
-Der Rekursionsanker wird getroffen, wenn die Länge der Eingabe $1$ erreicht.
+Außerdem weist das Programm abgesehen von der Hashfunktion für eine Datei der gleichen Länge immer eine konstante Laufzeit auf.
+Dies ist eine Eigenschaft, die mit AES nur in der Implementation erreicht werden kann\cite{Pitchaiah2012}; hier ist sie immer gegeben.
+Sei die Laufzeit von der verwendeten Passphrase oder Klartext abhängig.
+Dann erhält ein Angreifer, der den Stromverbrauch oder die verwendeten CPU-Zyklen misst, eigentlich geheime Informationen.
 
-\subsection{Matrix}
-
-Als Repräsentation der 16-bit Wörter werden shorts verwendet, die die Matrix, ein zweidimensionales Array, füllen.
-Es werden die folgenden Funktionen genutzt:
-\begin{itemize}
-    \item \textit{generate\_seed}
-    \item \textit{}
-    \item \textit{}
-\end{itemize}
-
-\subsection{Pseudozufallsgenerator}
-
-Der Generator wird in einer Methode, die den Seed als Parameter entgegennimmt implementiert.
-Es wird jeder letzte Wert von $x_i$, aus dem immer der nächste folgt, gespeichert.
-Dies ermöglicht es einen 512-bit Blockschlüssel zu erzeugen.
-
-Gehe man davon aus, dass alle Werte $x_i$ den Schlüssel bilden. Sobald also ein Teil oder der ganze Schlüssel bekannt ist, sind ebenfalls die entsprechenden Werte aus der Menge der $x_i$ bekannt. Mit mathematischen Mittel können alle Parameter und damit auch der $seed$ gefunden werden.
-Um diesem Sicherheitsproblem zu entgehen, wird dem Schlüssel nur die rechte Bithälfte von jedem Wert $x_i$ zugeordnet.
-Der Generator arbeitet jedoch mit dem ganzen Werten von $x_i$ verborgen weiter.
-Beispiel:
-\begin{align*}
-    B_{x_i} = 1001 1111
-\end{align*}
-\begin{align*}
-    B_{x_s} = 1111
-\end{align*}
-Der Schlüssel $s$ besteht demnach aus allen $x_s$, die aneinandergereiht werden.
-\begin{align*}
-    s = x_{s_1}, x_{s_2}, x_{s_3}, x_{s_4}, ...
-\end{align*}
-
-\subsection{Abscheinden der linken Bithälfte}
-
-Der Wert von $x_s$ entsteht durch eine Art Maske oder Folie, die über $x_i$ gelegt wird.
-Mit diesem Instrument lass sich nur noch die rechte Bithälfte von $x_i$ auf $x_s$ abbilden.
-Programmiertechnisch werden die Bits von der Maske mit den von $x_i$ verglichen.
-Wenn beide an der gleichen Stelle den gleichen Bitwert haben, wird dieser übernommen, ist dies nicht der Fall gilt für $x_s$ an der Stelle 0.
-Um nur die rechte Bitseite zu übernehmen, muss also eine gleichlange Bitmaske $m$ erzeugt werden, die von links bis zur Mitte aus Nullen und von der Mitte bis rechts aus Einsen besteht.
-Beispiel:
-\begin{align*}
-    B_{x_i} = 1111 1001SS
-\end{align*}
-\begin{align*}
-    B_{x_i} = 0000 1111
-\end{align*}
-\begin{align*}
-    B_{x_s} = 0000 1001
-\end{align*}
-
-\section{Analyse}
-
-\section{Beispiele}
 
 \section{Zusammenfassung}
 

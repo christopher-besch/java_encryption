@@ -5,45 +5,45 @@ The style file: alpha.bst
 Database file #1: database.bib
 Warning--empty note in Silies2021
 Warning--empty journal in Bernstein2008
-You've used 3 entries,
+You've used 4 entries,
             2543 wiz_defined-function locations,
-            577 strings with 4773 characters,
-and the built_in function-call counts, 793 in all, are:
-= -- 75
-> -- 24
-< -- 3
-+ -- 6
-- -- 6
-* -- 43
-:= -- 142
-add.period$ -- 9
-call.type$ -- 3
-change.case$ -- 15
-chr.to.int$ -- 3
-cite$ -- 5
-duplicate$ -- 35
-empty$ -- 60
-format.name$ -- 12
-if$ -- 153
+            583 strings with 4963 characters,
+and the built_in function-call counts, 1060 in all, are:
+= -- 101
+> -- 32
+< -- 4
++ -- 8
+- -- 8
+* -- 58
+:= -- 190
+add.period$ -- 12
+call.type$ -- 4
+change.case$ -- 20
+chr.to.int$ -- 4
+cite$ -- 6
+duplicate$ -- 49
+empty$ -- 80
+format.name$ -- 16
+if$ -- 205
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 1
-newline$ -- 18
-num.names$ -- 9
-pop$ -- 19
+missing$ -- 2
+newline$ -- 23
+num.names$ -- 12
+pop$ -- 24
 preamble$ -- 1
-purify$ -- 18
+purify$ -- 24
 quote$ -- 0
-skip$ -- 32
+skip$ -- 42
 stack$ -- 0
-substring$ -- 21
-swap$ -- 1
-text.length$ -- 3
-text.prefix$ -- 3
+substring$ -- 28
+swap$ -- 2
+text.length$ -- 4
+text.prefix$ -- 4
 top$ -- 0
-type$ -- 24
+type$ -- 32
 warning$ -- 2
-while$ -- 6
-width$ -- 4
-write$ -- 36
+while$ -- 8
+width$ -- 6
+write$ -- 48
 (There were 2 warnings)

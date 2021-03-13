@@ -1,15 +1,9 @@
 \BOOKMARK [1][-]{section.1}{Abstract}{}% 1
-\BOOKMARK [1][-]{section.2}{Einleitung}{}% 2
+\BOOKMARK [1][-]{section.2}{\334bersicht}{}% 2
 \BOOKMARK [1][-]{section.3}{Linearer Kongruenzgenerator}{}% 3
 \BOOKMARK [1][-]{section.4}{Matrix}{}% 4
 \BOOKMARK [2][-]{subsection.4.1}{Achtelrunden}{section.4}% 5
 \BOOKMARK [1][-]{section.5}{Hashfunktion}{}% 6
-\BOOKMARK [1][-]{section.6}{Implementation}{}% 7
-\BOOKMARK [2][-]{subsection.6.1}{Hashfunktion}{section.6}% 8
-\BOOKMARK [2][-]{subsection.6.2}{Matrix}{section.6}% 9
-\BOOKMARK [2][-]{subsection.6.3}{Pseudozufallsgenerator}{section.6}% 10
-\BOOKMARK [2][-]{subsection.6.4}{Abscheinden der linken Bith\344lfte}{section.6}% 11
-\BOOKMARK [1][-]{section.7}{Analyse}{}% 12
-\BOOKMARK [1][-]{section.8}{Beispiele}{}% 13
-\BOOKMARK [1][-]{section.9}{Zusammenfassung}{}% 14
-\BOOKMARK [1][-]{section.10}{Literatur}{}% 15
+\BOOKMARK [1][-]{section.6}{Implementation und Beispiele}{}% 7
+\BOOKMARK [1][-]{section.7}{Zusammenfassung}{}% 8
+\BOOKMARK [1][-]{section.8}{Literatur}{}% 9
