@@ -1,8 +1,13 @@
-\begin{thebibliography}{J.08}
+\begin{thebibliography}{Wai90}
 
 \bibitem[J.08]{Bernstein2008}
 Bernstein~Daniel J.
 \newblock Chacha, a variant of salsa20.
 \newblock April 2008.
+
+\bibitem[Wai90]{Waitzman1990}
+David Waitzman.
+\newblock {Standard for the transmission of IP datagrams on avian carriers}.
+\newblock RFC 1149, April 1990.
 
 \end{thebibliography}
