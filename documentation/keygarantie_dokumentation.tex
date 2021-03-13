@@ -69,22 +69,25 @@ Ziel ist es einen \glqq zufälligen\grqq{} Schlüssel zu erzeugen, der unendlich
 \begin{align*}
     x_i=\left(\left( x_{i-1}\cdot a\right) +c\right) \text{mod } 2^n
 \end{align*}
+\begin{itemize}
+    \item $x_i$ ist ein neuer „Zufallswert“, der dem Schlüssel zugeordnet wird.
+    \item $x_{i-1}$ ist dementsprechend der vorherige Wert, der bestimmt wurde.
+    \item Da jeder Wert aus der Menge aller $x_i$ erst durch einen vorherigen Wert entsteht, muss es einen Startwert $x_0$ geben. Der Seed liefert diesen Startwert.
+    \item $n$ sei aus $ \mathbb{N} $ und markiert die Bitintervallgrenze in der $x_i$ liegt.
+Für das Intervall gilt also: [0, $n$].
+    \item $c$ sei aus  $ \mathbb{N}<2 $
+    \item $n$ und dient als Summand.
+    \item $a$ sei in $ \mathbb{N}< 2 $
+    \item $n$ und dienst als Multiplikator.
 
-$x_i$ ist ein neuer „Zufallswert“, der dem Schlüssel zugeordnet wird.
-$x_{i-1}$ ist dementsprechend der vorherige Wert, der bestimmt wurde.
-Da jeder Wert aus der Menge aller $x_i$ erst durch einen vorherigen Wert entsteht, muss es einen Startwert geben: $x_0 = seed $.
-$n$ sei aus $ \mathbb{N} $ und markiert die Bitintervallgrenze in der $x_i$ liegt.
-Intervall: [0, $n$].
-$c$ sei aus  $ \mathbb{N}<2 $
-$n$ und dient als Summand.
-$a$ sei in $ \mathbb{N}< 2 $
-$n$ und dienst als Multiplikator.
+\end{itemize}
+Die \glqq Zufallswerte\grqq{} des Kongruenzgenerators legen die Grundlage für den Blockschlüssel.
 
 \subsection{Enstehung des Schlüssel}
 
-Natürlich erkennt man schnell, dass durch mehrere bekannten Werte aus der Menge der $x_i$ und ein wenig geschickte Mathematik alle Parameter und damit auch der $seed$ gefunden werden können.
-Um dem aus dem Weg zu gehen, wird dem Schlüssel nur die rechte Bithälfte von jedem Wert $x_i$ zugeordnet.
-Der Generator arbeitet jedoch mit dem ganzen Werten von $x_i$ weiter.
+Gehe man davon aus, dass alle Werte $x_i$ den Schlüssel bilden. Sobald also ein Teil oder der ganze Schlüssel bekannt ist, sind ebenfalls die entsprechenden Werte aus der Menge der $x_i$ bekannt. Mit mathematischen Mittel können alle Parameter und damit auch der $seed$ gefunden werden.
+Um diesem Sicherheitsproblem zu entgehen, wird dem Schlüssel nur die rechte Bithälfte von jedem Wert $x_i$ zugeordnet.
+Der Generator arbeitet jedoch mit dem ganzen Werten von $x_i$ verborgen weiter. 
 Beispiel:
 \begin{align*}
     B_{x_i} = 1001 1111
@@ -100,11 +103,10 @@ Der Schlüssel $s$ besteht demnach aus allen $x_s$, die aneinandergereiht werden
 \subsection{Abscheinden der linken Bithälfte}
 
 Der Wert von $x_s$ entsteht durch eine Art Maske oder Folie, die über $x_i$ gelegt wird.
-Diese ist so aufgebaut, dass durch sie nur die rechte Bitseite von $x_i$ durchschimmert und $x_s$ zugeordnet wird.
-Im Programm wird mit dem Vergleichsinstrument \flqq and\frqq gearbeitet.
-Es werden die Bits von der Maske mit den der von $x_i$ verglichen.
+Mit diesem Instrument lass sich nur noch die rechte Bithälfte von $x_i$ auf $x_s$ abbilden.
+Programmiertechnisch werden die Bits von der Maske mit den von $x_i$ verglichen.
 Wenn beide an der gleichen Stelle den gleichen Bitwert haben, wird dieser übernommen, ist dies nicht der Fall gilt für $x_s$ an der Stelle 0.
-Um nur die rechte Seite zu übernehmen, muss also eine gleichlange Bitmaske $m$ erzeugt werden, die von links bis zur Mitte aus Nullen und von der Mitte bis rechts aus Einsen besteht.
+Um nur die rechte Bitseite zu übernehmen, muss also eine gleichlange Bitmaske $m$ erzeugt werden, die von links bis zur Mitte aus Nullen und von der Mitte bis rechts aus Einsen besteht.
 Beispiel:
 \begin{align*}
     B_{x_i} = 1111 1001SS
@@ -223,15 +225,8 @@ Im Folgenden werden auf Implementationsdetails eingegangen.
 
 \subsection{Pseudozufallsgenerator}
 
-Der Generator wird als Klasse erzeugt.
-Als Eingabe bekommt er die Parameter $a$, $b$, $n$ und
-den $seed$.
-Der Vorteil an einer Klasse ist, dass jeder letzte Wert von $x_i$ gespeichert wird.
-Sodass
-man innerhalb der Klasse mit Hilfe einer Methode jeden nächsten Teilschlüssel $k_i$ mit der
-Bitanzahl $n$ erzeugen kann.
-Und die Möglichkeit besteht den zusammengesetzten Schlüssel $k$
-aus den Teilschlüsseln $k_i$ unbeschränkt lang zu wählen.
+Der Generator wird in einer Methode, die den Seed als Parameter bekommt generiert..
+Es wird jeder letzte Wert von $x_i$, aus dem immer der nächste folgt, gespeichert. Dies ermöglicht es einen $n$ langen Blockschlüssel zu erzeugen.
 
 \section{Analyse}
 
