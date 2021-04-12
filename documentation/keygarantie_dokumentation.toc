@@ -6,7 +6,7 @@
 \contentsline {subsection}{\numberline {4.1}Achtelrunden}{4}{subsection.4.1}%
 \contentsline {section}{\numberline {5}Hashfunktion}{5}{section.5}%
 \contentsline {section}{\numberline {6}Implementationsabhängige Eigenschaften}{6}{section.6}%
-\contentsline {section}{\numberline {7}Bespiele}{6}{section.7}%
+\contentsline {section}{\numberline {7}Beispiele}{6}{section.7}%
 \contentsline {subsection}{\numberline {7.1}Textdatei}{6}{subsection.7.1}%
 \contentsline {subsection}{\numberline {7.2}Videodatei}{7}{subsection.7.2}%
 \contentsline {section}{\numberline {8}Fazit}{7}{section.8}%
